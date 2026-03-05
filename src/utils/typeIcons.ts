@@ -1,0 +1,43 @@
+import { ImageSourcePropType } from 'react-native';
+
+export const TYPE_ICONS: Record<string, ImageSourcePropType> = {
+    bug: require('../../assets/icon/bug.png'),
+    dark: require('../../assets/icon/dark.png'),
+    dragon: require('../../assets/icon/dragon.png'),
+    electric: require('../../assets/icon/electric.png'),
+    fairy: require('../../assets/icon/fairy.png'),
+    fighting: require('../../assets/icon/fighting.png'),
+    fire: require('../../assets/icon/fire.png'),
+    flying: require('../../assets/icon/flying.png'),
+    ghost: require('../../assets/icon/ghost.png'),
+    grass: require('../../assets/icon/grass.png'),
+    ground: require('../../assets/icon/ground.png'),
+    ice: require('../../assets/icon/ice.png'),
+    normal: require('../../assets/icon/normal.png'),
+    poison: require('../../assets/icon/poison.png'),
+    psychic: require('../../assets/icon/psychic.png'),
+    rock: require('../../assets/icon/rock.png'),
+    steel: require('../../assets/icon/steel.png'),
+    water: require('../../assets/icon/water.png'),
+};
+
+export const TYPE_OUTLINE_ICONS: Record<string, ImageSourcePropType> = {
+    bug: require('../../assets/icon outline/bug.png'),
+    dark: require('../../assets/icon outline/dark.png'),
+    dragon: require('../../assets/icon outline/dragon.png'),
+    electric: require('../../assets/icon outline/electric.png'),
+    fairy: require('../../assets/icon outline/fairy.png'),
+    fighting: require('../../assets/icon outline/fighting.png'),
+    fire: require('../../assets/icon outline/fire.png'),
+    flying: require('../../assets/icon outline/flying.png'),
+    ghost: require('../../assets/icon outline/ghost.png'),
+    grass: require('../../assets/icon outline/grass.png'),
+    ground: require('../../assets/icon outline/ground.png'),
+    ice: require('../../assets/icon outline/ice.png'),
+    normal: require('../../assets/icon outline/normal.png'),
+    poison: require('../../assets/icon outline/poison.png'),
+    psychic: require('../../assets/icon outline/psychic.png'),
+    rock: require('../../assets/icon outline/rock.png'),
+    steel: require('../../assets/icon outline/steel.png'),
+    water: require('../../assets/icon outline/water.png'),
+};

@@ -62,6 +62,62 @@ export const SkeletonCard = () => {
     );
 };
 
+// ---------- Skeleton Detail Screen ----------
+export const SkeletonDetailScreen = ({ bgColor }: { bgColor: string }) => {
+    return (
+        <View style={{ flex: 1, backgroundColor: bgColor }}>
+            {/* Header */}
+            <View style={{ paddingHorizontal: 24, paddingTop: 60, paddingBottom: 20 }}>
+                <SkeletonBox height={14} width={50} borderRadius={6} style={{ backgroundColor: 'rgba(255,255,255,0.4)', marginBottom: 12 }} />
+                <SkeletonBox height={38} width={200} borderRadius={10} style={{ backgroundColor: 'rgba(255,255,255,0.4)', marginBottom: 14 }} />
+                <View style={{ flexDirection: 'row', gap: 10 }}>
+                    <SkeletonBox height={30} width={90} borderRadius={20} style={{ backgroundColor: 'rgba(255,255,255,0.35)' }} />
+                    <SkeletonBox height={30} width={90} borderRadius={20} style={{ backgroundColor: 'rgba(255,255,255,0.35)' }} />
+                </View>
+            </View>
+
+            {/* Avatar placeholder */}
+            <View style={{ alignItems: 'center', marginBottom: -70, zIndex: 10 }}>
+                <SkeletonBox height={160} width={160} borderRadius={80} style={{ backgroundColor: 'rgba(255,255,255,0.3)' }} />
+            </View>
+
+            {/* White body */}
+            <View style={{ flex: 1, backgroundColor: '#fff', borderTopLeftRadius: 50, borderTopRightRadius: 50, paddingHorizontal: 24, paddingTop: 90 }}>
+                {/* Description */}
+                <SkeletonBox height={14} width="100%" borderRadius={6} style={{ marginBottom: 8 }} />
+                <SkeletonBox height={14} width="85%" borderRadius={6} style={{ marginBottom: 24 }} />
+
+                {/* Stat boxes */}
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginBottom: 24 }}>
+                    {[1, 2, 3, 4].map(i => (
+                        <SkeletonBox key={i} height={70} width="48%" borderRadius={16} />
+                    ))}
+                </View>
+
+                {/* Gender */}
+                <SkeletonBox height={14} width={80} borderRadius={6} style={{ marginBottom: 10 }} />
+                <SkeletonBox height={12} width="100%" borderRadius={6} style={{ marginBottom: 24 }} />
+
+                {/* Weaknesses */}
+                <SkeletonBox height={22} width={120} borderRadius={8} style={{ marginBottom: 14 }} />
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 24 }}>
+                    {[1, 2, 3, 4, 5].map(i => (
+                        <SkeletonBox key={i} height={30} width={80} borderRadius={20} />
+                    ))}
+                </View>
+
+                {/* Evolutions */}
+                <SkeletonBox height={22} width={120} borderRadius={8} style={{ marginBottom: 14 }} />
+                <View style={{ flexDirection: 'row', gap: 14, alignItems: 'center' }}>
+                    <SkeletonBox height={80} width={80} borderRadius={40} />
+                    <SkeletonBox height={32} width={32} borderRadius={16} />
+                    <SkeletonBox height={80} width={80} borderRadius={40} />
+                </View>
+            </View>
+        </View>
+    );
+};
+
 const styles = StyleSheet.create({
     box: {
         backgroundColor: '#d0d0d0',

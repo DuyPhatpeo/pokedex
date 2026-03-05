@@ -7,6 +7,7 @@ import { Image } from 'expo-image';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { TYPE_ICONS, TYPE_OUTLINE_ICONS } from '../utils/typeIcons';
 import { getColorsByType, hexToRgba } from '../utils/colors';
+import { SkeletonDetailScreen } from '../components/Skeleton';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Detail'>;
 const { width } = Dimensions.get('window');
@@ -21,11 +22,7 @@ export const DetailScreen = ({ route, navigation }: Props) => {
     }, [name]);
 
     if (!detail || !detail.id) {
-        return (
-            <SafeAreaView style={[styles.center, { backgroundColor: bgColor }]}>
-                <ActivityIndicator size="large" color="#fff" />
-            </SafeAreaView>
-        );
+        return <SkeletonDetailScreen bgColor={bgColor} />;
     }
 
     const formattedId = `#${detail.id.toString().padStart(3, '0')}`;
@@ -103,7 +100,7 @@ export const DetailScreen = ({ route, navigation }: Props) => {
                         {/* Types Layout New Design */}
                         <View style={styles.typesRow}>
                             {detail.types?.map((t) => (
-                                <View key={t.type.name} style={[styles.typeBadgeFlat, { backgroundColor: hexToRgba('#ffffff', 0.25) }]}>
+                                <View key={t.type.name} style={[styles.typeBadgeFlat, { backgroundColor: hexToRgba(getColorsByType(t.type.name), 0.75) }]}>
                                     {TYPE_ICONS[t.type.name] && (
                                         <View style={styles.typeBadgeIconCircle}>
                                             <Image source={TYPE_ICONS[t.type.name]} style={styles.typeBadgeIcon} contentFit="contain" />
@@ -243,7 +240,10 @@ export const DetailScreen = ({ route, navigation }: Props) => {
                                                     <View style={styles.evoTypes}>
                                                         {detail.types?.map(t => (
                                                             <View key={t.type.name} style={[styles.evoTypeMini, { backgroundColor: getColorsByType(t.type.name) }]}>
-                                                                {TYPE_ICONS[t.type.name] && <Image source={TYPE_ICONS[t.type.name]} style={styles.evoTypeIconMini} contentFit="contain" />}
+                                                                <View style={styles.evoTypeIconCircle}>
+                                                                    {TYPE_ICONS[t.type.name] && <Image source={TYPE_ICONS[t.type.name]} style={styles.evoTypeIconMini} contentFit="contain" />}
+                                                                </View>
+                                                                <Text style={styles.evoTypeText}>{t.type.name}</Text>
                                                             </View>
                                                         ))}
                                                     </View>
@@ -341,6 +341,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         gap: 7,
+        borderWidth: 1.5,
+        borderColor: 'rgba(255,255,255,0.6)',
     },
     typeBadgeIconCircle: {
         width: 22,
@@ -442,9 +444,11 @@ const styles = StyleSheet.create({
     evoInfo: { flex: 1 },
     evoName: { fontSize: 18, fontWeight: 'bold', color: '#111', textTransform: 'capitalize', marginBottom: 2 },
     evoIdText: { fontSize: 13, color: '#666', fontWeight: 'bold', marginBottom: 6 },
-    evoTypes: { flexDirection: 'row', gap: 5 },
-    evoTypeMini: { width: 24, height: 14, borderRadius: 7, justifyContent: 'center', alignItems: 'center' },
-    evoTypeIconMini: { width: 8, height: 8 },
+    evoTypes: { flexDirection: 'row', gap: 6, flexWrap: 'wrap' },
+    evoTypeMini: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 20 },
+    evoTypeIconCircle: { width: 18, height: 18, borderRadius: 9, backgroundColor: '#fff', justifyContent: 'center', alignItems: 'center' },
+    evoTypeIconMini: { width: 10, height: 10 },
+    evoTypeText: { color: '#fff', fontSize: 11, fontWeight: 'bold', textTransform: 'capitalize' },
     evoArrowLevel: { alignItems: 'center', marginVertical: 10, marginLeft: 25 },
     evoLevelText: { fontSize: 14, fontWeight: 'bold', color: '#1D4ED8', marginTop: 2 }
 });

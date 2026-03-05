@@ -1,7 +1,13 @@
 import { NavigatorScreenParams } from '@react-navigation/native';
 
+export type MainTabParamList = {
+    Pokedex: undefined;
+    Favorites: undefined;
+    Settings: undefined;
+};
+
 export type RootStackParamList = {
     Splash: undefined;
-    Home: undefined;
+    MainTabs: NavigatorScreenParams<MainTabParamList>;
     Detail: { name: string; bgColor: string };
 };

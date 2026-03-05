@@ -11,7 +11,7 @@ import { getColorsByType, hexToRgba } from '../utils/colors';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
 
-type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
+type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 interface Props {
     navigation: HomeScreenNavigationProp;

@@ -37,7 +37,7 @@ export const SplashScreen = ({ navigation }: Props) => {
                 duration: 300,
                 useNativeDriver: true,
             }).start(() => {
-                navigation.replace('Home');
+                navigation.replace('MainTabs', { screen: 'Pokedex' });
             });
         }, 2200);
 

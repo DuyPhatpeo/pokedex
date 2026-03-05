@@ -1,7 +1,10 @@
 export interface PokemonSprite {
   front_default: string;
   other?: {
-    'official-artwork': {
+    'official-artwork'?: {
+      front_default: string;
+    };
+    home?: {
       front_default: string;
     };
   };

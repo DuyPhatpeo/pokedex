@@ -29,7 +29,7 @@ export const PokemonCard = memo(({ item, onPress }: Props) => {
     const lightBgColor = hexToRgba(bgColor, 0.15); // Nền màu nhạt 15% opacity
 
     const formattedId = `#${detail.id.toString().padStart(3, '0')}`;
-    const imageUrl = detail.sprites.other?.['official-artwork'].front_default || detail.sprites.front_default;
+    const imageUrl = detail.sprites.other?.['official-artwork']?.front_default || detail.sprites.front_default;
 
     return (
         <TouchableOpacity

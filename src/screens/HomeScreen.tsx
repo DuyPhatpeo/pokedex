@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useState } from 'react';
+import React, { useEffect, useCallback, useState, useRef } from 'react';
 import { View, FlatList, StyleSheet, ActivityIndicator, SafeAreaView, Text, TextInput, TouchableOpacity, Platform, Modal, Pressable } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
@@ -33,6 +33,8 @@ export const HomeScreen = ({ navigation }: Props) => {
         sortOption, setSortOption
     } = usePokemonStore();
 
+    const flatListRef = useRef<FlatList>(null);
+
     const [localSearch, setLocalSearch] = useState(searchQuery);
     const [showSortModal, setShowSortModal] = useState(false);
 
@@ -54,6 +56,13 @@ export const HomeScreen = ({ navigation }: Props) => {
         setLocalSearch('');
         setSearchQuery('');
     };
+
+    // Scroll to top when filters, search, or sort change
+    useEffect(() => {
+        if (pokemonList.length > 0 && flatListRef.current) {
+            flatListRef.current.scrollToOffset({ animated: true, offset: 0 });
+        }
+    }, [searchQuery, activeTypeFilter, sortOption]);
 
     const handleTypePress = (type: string) => {
         if (activeTypeFilter === type) {
@@ -232,6 +241,7 @@ export const HomeScreen = ({ navigation }: Props) => {
 
             {/* ===== POKEMON LIST ===== */}
             <FlatList
+                ref={flatListRef}
                 data={pokemonList}
                 renderItem={renderItem}
                 keyExtractor={(item) => item.name}

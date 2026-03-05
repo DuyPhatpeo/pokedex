@@ -1,13 +1,13 @@
 {
   "expo": {
-    "name": "pokedex",
+    "name": "Pokédex",
     "slug": "pokedex",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/logo.png",
+    "icon": "./assets/Pokedex.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/logo.png",
+      "image": "./assets/Pokedex.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -24,7 +24,7 @@
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "favicon": "./assets/favicon/favicon.png"
+      "favicon": "./assets/favicon/favicon-32x32.png"
     },
     "plugins": [
       "expo-image"

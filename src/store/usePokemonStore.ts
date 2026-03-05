@@ -7,6 +7,8 @@ interface PokemonState {
     pokemonList: PokemonListItem[];
     pokemonDetails: Record<string, PokemonDetail>;
     searchQuery: string;
+    activeTypeFilter: string | null;
+    sortOption: string; // 'id-asc', 'id-desc', 'name-asc', 'name-desc'
     isLoading: boolean;
     isLoadingMore: boolean;
     error: string | null;
@@ -14,6 +16,9 @@ interface PokemonState {
     hasMore: boolean;
 
     setSearchQuery: (query: string) => void;
+    setTypeFilter: (type: string | null) => void;
+    setSortOption: (sort: string) => void;
+    applyFiltersAndSort: () => Promise<void>;
     loadPokemonList: (refresh?: boolean) => Promise<void>;
     loadPokemonDetail: (name: string) => Promise<void>;
 }
@@ -23,39 +28,89 @@ export const usePokemonStore = create<PokemonState>((set, get) => ({
     pokemonList: [],
     pokemonDetails: {},
     searchQuery: '',
+    activeTypeFilter: null,
+    sortOption: 'id-asc', // Default sort
     isLoading: false,
     isLoadingMore: false,
     error: null,
     offset: 0,
     hasMore: true,
 
-    setSearchQuery: async (query: string) => {
+    setSearchQuery: (query: string) => {
         set({ searchQuery: query });
-        const { allPokemon } = get();
+        get().applyFiltersAndSort();
+    },
 
-        if (query.trim().length > 0 && allPokemon.length === 0) {
-            set({ isLoading: true });
-            try {
-                const response = await fetchAllPokemon();
-                set({ allPokemon: response.results, isLoading: false });
-            } catch (err) {
-                set({ isLoading: false });
-            }
+    setTypeFilter: (type: string | null) => {
+        set({ activeTypeFilter: type });
+        get().applyFiltersAndSort();
+    },
+
+    setSortOption: (sort: string) => {
+        set({ sortOption: sort });
+        get().applyFiltersAndSort();
+    },
+
+    applyFiltersAndSort: async () => {
+        const { searchQuery, activeTypeFilter, sortOption, allPokemon } = get();
+
+        // Return to default pagination if no filters are applied
+        if (searchQuery.trim().length === 0 && !activeTypeFilter && sortOption === 'id-asc') {
+            get().loadPokemonList(true);
+            return;
         }
 
-        const storeAfterFetch = get();
-        if (query.trim().length > 0) {
-            const filtered = storeAfterFetch.allPokemon.filter(p => p.name.toLowerCase().includes(query.toLowerCase()));
-            set({ pokemonList: filtered, hasMore: false });
-        } else {
-            get().loadPokemonList(true);
+        set({ isLoading: true });
+        try {
+            let baseList: PokemonListItem[] = [];
+
+            if (activeTypeFilter) {
+                const typeData = await fetchType(activeTypeFilter);
+                baseList = typeData.pokemon.map((p: any) => p.pokemon);
+            } else {
+                if (allPokemon.length === 0) {
+                    const response = await fetchAllPokemon();
+                    set({ allPokemon: response.results });
+                    baseList = response.results;
+                } else {
+                    baseList = allPokemon;
+                }
+            }
+
+            let resultList = baseList;
+            if (searchQuery.trim().length > 0) {
+                resultList = resultList.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()));
+            }
+
+            const getPokemonId = (url: string) => {
+                const parts = url.split('/').filter(Boolean);
+                return parseInt(parts[parts.length - 1], 10);
+            };
+
+            resultList.sort((a, b) => {
+                if (sortOption === 'id-asc') {
+                    return getPokemonId(a.url) - getPokemonId(b.url);
+                } else if (sortOption === 'id-desc') {
+                    return getPokemonId(b.url) - getPokemonId(a.url);
+                } else if (sortOption === 'name-asc') {
+                    return a.name.localeCompare(b.name);
+                } else if (sortOption === 'name-desc') {
+                    return b.name.localeCompare(a.name);
+                }
+                return 0;
+            });
+
+            set({ pokemonList: resultList, hasMore: false, isLoading: false, offset: 0 });
+        } catch (err) {
+            set({ isLoading: false });
         }
     },
 
     loadPokemonList: async (refresh = false) => {
-        const { offset, isLoading, isLoadingMore, hasMore, searchQuery } = get();
-        // Cannot load more while searching
-        if (searchQuery.trim().length > 0) return;
+        const { offset, isLoading, isLoadingMore, hasMore, searchQuery, activeTypeFilter, sortOption } = get();
+
+        // Cannot load more while any filter/sort is active
+        if (searchQuery.trim().length > 0 || activeTypeFilter || sortOption !== 'id-asc') return;
         if (isLoading || isLoadingMore || (!hasMore && !refresh)) return;
 
         if (refresh) {

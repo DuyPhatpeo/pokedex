@@ -5,6 +5,7 @@ import { usePokemonStore } from '../store/usePokemonStore';
 import { PokemonListItem } from '../types/pokemon';
 import { getColorsByType, hexToRgba } from '../utils/colors';
 import { TYPE_ICONS, TYPE_OUTLINE_ICONS } from '../utils/typeIcons';
+import { SkeletonCard } from './Skeleton';
 
 interface Props {
     item: PokemonListItem;
@@ -20,23 +21,22 @@ export const PokemonCard = memo(({ item, onPress }: Props) => {
     }, [item.name]);
 
     if (!detail) {
-        return (
-            <View style={[styles.card, styles.loadingCard]}>
-                <ActivityIndicator size="small" color="#000" />
-            </View>
-        );
+        return <SkeletonCard />;
     }
 
     const mainType = detail.types[0]?.type.name || 'normal';
     const bgColor = getColorsByType(mainType);
     const lightBgColor = hexToRgba(bgColor, 0.15); // Nền màu nhạt 15% opacity
 
-    const formattedId = `N°${detail.id.toString().padStart(3, '0')}`;
+    const formattedId = `#${detail.id.toString().padStart(3, '0')}`;
     const imageUrl = detail.sprites.other?.['official-artwork'].front_default || detail.sprites.front_default;
 
     return (
         <TouchableOpacity
-            style={[styles.card, { backgroundColor: lightBgColor }]}
+            style={[styles.card, {
+                backgroundColor: lightBgColor,
+                borderColor: hexToRgba(bgColor, 0.5),
+            }]}
             onPress={() => onPress(item.name, bgColor)}
             activeOpacity={0.9}
         >
@@ -82,15 +82,16 @@ export const PokemonCard = memo(({ item, onPress }: Props) => {
 
 const styles = StyleSheet.create({
     card: {
-        borderRadius: 24,
+        borderRadius: 28,
         marginVertical: 10,
         marginHorizontal: 15,
-        height: 140, // Height cố định tránh lộn xộn
+        height: 140,
         flexDirection: 'row',
         alignItems: 'center',
         paddingLeft: 20,
-        overflow: 'hidden', // Che đi phần dư của mảng màu phải
+        overflow: 'hidden',
         position: 'relative',
+        borderWidth: 1.5,
     },
     loadingCard: {
         backgroundColor: '#f5f5f5',

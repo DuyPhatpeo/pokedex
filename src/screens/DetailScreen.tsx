@@ -1,14 +1,15 @@
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ActivityIndicator, TouchableOpacity, ScrollView, Platform } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, ActivityIndicator, TouchableOpacity, ScrollView, Platform, Dimensions } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
 import { usePokemonStore } from '../store/usePokemonStore';
 import { Image } from 'expo-image';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { TYPE_ICONS, TYPE_OUTLINE_ICONS } from '../utils/typeIcons';
-import { getColorsByType } from '../utils/colors';
+import { getColorsByType, hexToRgba } from '../utils/colors';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Detail'>;
+const { width } = Dimensions.get('window');
 
 export const DetailScreen = ({ route, navigation }: Props) => {
     const { name, bgColor } = route.params;
@@ -27,7 +28,7 @@ export const DetailScreen = ({ route, navigation }: Props) => {
         );
     }
 
-    const formattedId = `N°${detail.id.toString().padStart(3, '0')}`;
+    const formattedId = `#${detail.id.toString().padStart(3, '0')}`;
     const imageUrl = detail.sprites?.other?.['official-artwork']?.front_default || detail.sprites?.front_default || '';
 
     // Render tỷ lệ giới tính gộp 2 màu
@@ -35,7 +36,7 @@ export const DetailScreen = ({ route, navigation }: Props) => {
         if (detail.genderRate === undefined || detail.genderRate === -1) {
             return (
                 <View style={styles.genderContainer}>
-                    <Text style={styles.genderLabelCenter}>GÊNERO</Text>
+                    <Text style={styles.genderLabelCenter}>GENDER</Text>
                     <Text style={{ textAlign: 'center', color: '#666', fontWeight: 'bold' }}>Genderless</Text>
                 </View>
             );
@@ -58,252 +59,339 @@ export const DetailScreen = ({ route, navigation }: Props) => {
     };
 
     return (
-        <View style={styles.container}>
-            {/* Vòng nền Header cong cực lớn */}
-            <View style={styles.headerOverflow}>
-                <View style={[styles.headerCurveBg, { backgroundColor: bgColor }]}>
+        <View style={[styles.container, { backgroundColor: bgColor }]}>
+            {/* 
+              Giữ duy nhất 1 ScrollView tổng bao vây tất cả. 
+              Nhờ vậy khi cuộn, Card Header và Image chạy lên cùng đợt với List, không bị hiện tượng Overlay.
+            */}
+            <ScrollView
+                style={styles.fullScroll}
+                contentContainerStyle={styles.fullScrollContent}
+                showsVerticalScrollIndicator={false}
+                bounces={false}
+            >
+                {/* 
+                  =============== PHẦN HEADER DÀNH CHO WATERMARK VÀ TIÊU ĐỀ ===============
+                */}
+                <View style={[styles.topHeaderSection, { backgroundColor: bgColor }]}>
+                    {/* Background Pattern Tĩnh (Mờ Nhạt Icon Thuộc Tính) */}
                     {TYPE_OUTLINE_ICONS[detail.types?.[0]?.type.name || 'normal'] && (
                         <Image
                             source={TYPE_OUTLINE_ICONS[detail.types?.[0]?.type.name || 'normal']}
-                            style={styles.watermarkIcon}
+                            style={styles.bgPokeball}
                             contentFit="contain"
                         />
                     )}
-                </View>
-            </View>
 
-            <SafeAreaView style={styles.safeArea}>
-                <View style={styles.headerNav}>
-                    <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                        <Ionicons name="chevron-back" size={32} color="#fff" />
-                    </TouchableOpacity>
-                    {/* Đã bỏ nút Favorite Heart theo yêu cầu */}
-                </View>
+                    {/* Navigation Bar */}
+                    <SafeAreaView style={styles.safeAreaHeader}>
+                        <View style={styles.headerNav}>
+                            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+                                <Ionicons name="arrow-back" size={28} color="#fff" />
+                            </TouchableOpacity>
+                            {/* Bỏ Heart theo yêu cầu */}
+                        </View>
+                    </SafeAreaView>
 
-                {/* Avatar lấn chiếm cạnh viền */}
-                <View style={styles.imageWrapper}>
-                    {imageUrl ? (
-                        <Image
-                            source={{ uri: imageUrl }}
-                            style={styles.image}
-                            contentFit="contain"
-                            transition={500}
-                        />
-                    ) : null}
-                </View>
+                    {/* Title Box */}
+                    <View style={styles.titleContainer}>
+                        <View style={styles.titleRow}>
+                            <Text style={styles.name}>{detail.name}</Text>
+                            <Text style={styles.idText}>{formattedId}</Text>
+                        </View>
 
-                <View style={styles.contentWrapper}>
-                    <ScrollView
-                        style={styles.contentContainer}
-                        contentContainerStyle={styles.scrollContent}
-                        showsVerticalScrollIndicator={false}
-                    >
-                        {/* Title Block Layout (Trái) */}
-                        <Text style={styles.name}>{detail.name}</Text>
-                        <Text style={styles.idText}>{formattedId}</Text>
-
-                        {/* Types */}
+                        {/* Types Layout New Design */}
                         <View style={styles.typesRow}>
                             {detail.types?.map((t) => (
-                                <View key={t.type.name} style={[styles.typeBadge, { backgroundColor: getColorsByType(t.type.name) }]}>
+                                <View key={t.type.name} style={[styles.typeBadgeFlat, { backgroundColor: hexToRgba('#ffffff', 0.25) }]}>
                                     {TYPE_ICONS[t.type.name] && (
-                                        <View style={styles.iconCircle}>
-                                            <Image source={TYPE_ICONS[t.type.name]} style={styles.detailTypeIcon} contentFit="contain" />
+                                        <View style={styles.typeBadgeIconCircle}>
+                                            <Image source={TYPE_ICONS[t.type.name]} style={styles.typeBadgeIcon} contentFit="contain" />
                                         </View>
                                     )}
-                                    <Text style={styles.typeText}>{t.type.name}</Text>
+                                    <Text style={styles.typeTextFlat}>{t.type.name}</Text>
                                 </View>
                             ))}
                         </View>
+                    </View>
 
-                        {/* Description */}
-                        {detail.description ? (
-                            <Text style={styles.descriptionText}>{detail.description}</Text>
+                    {/* Pokemon Avatar Container lồi xuống (Nằm trọn trong luồng Flex Scroll) */}
+                    <View style={styles.avatarHolder}>
+                        {imageUrl ? (
+                            <Image
+                                source={{ uri: imageUrl }}
+                                style={styles.avatarImage}
+                                contentFit="contain"
+                                transition={500}
+                            />
                         ) : null}
+                    </View>
+                </View>
 
-                        {/* Stats 2x2 Grid Layout */}
-                        <View style={styles.statsGrid}>
-                            <View style={styles.statBox}>
-                                <View style={styles.statBoxHeader}>
-                                    <MaterialCommunityIcons name="weight" size={16} color="#999" />
-                                    <Text style={styles.statBoxTitle}>PESO</Text>
-                                </View>
-                                <View style={styles.statBoxValueContainer}>
-                                    <Text style={styles.statBoxValue}>{(detail.weight || 0) / 10} kg</Text>
-                                </View>
+                {/* 
+                  =============== PHẦN BODY MÀU TRẮNG HIỂN THỊ DỮ LIỆU ===============
+                */}
+                <View style={styles.whiteBodyCurve}>
+                    {/* Thêm khoảng trống đẩy phần thông tin xuống vì Avatar đã tràn dính qua viền cong bằng âm margin-top */}
+                    <View style={styles.bodySpacer} />
+
+                    {/* Description */}
+                    {detail.description ? (
+                        <Text style={styles.descriptionText}>{detail.description}</Text>
+                    ) : null}
+
+                    {/* Stats 2x2 Grid Layout */}
+                    <View style={styles.statsGrid}>
+                        <View style={styles.statBox}>
+                            <View style={styles.statBoxHeader}>
+                                <MaterialCommunityIcons name="weight" size={16} color="#999" />
+                                <Text style={styles.statBoxTitle}>WEIGHT</Text>
                             </View>
-
-                            <View style={styles.statBox}>
-                                <View style={styles.statBoxHeader}>
-                                    <MaterialCommunityIcons name="format-line-spacing" size={16} color="#999" />
-                                    <Text style={styles.statBoxTitle}>ALTURA</Text>
-                                </View>
-                                <View style={styles.statBoxValueContainer}>
-                                    <Text style={styles.statBoxValue}>{(detail.height || 0) / 10} m</Text>
-                                </View>
-                            </View>
-
-                            <View style={styles.statBox}>
-                                <View style={styles.statBoxHeader}>
-                                    <MaterialCommunityIcons name="view-grid-outline" size={16} color="#999" />
-                                    <Text style={styles.statBoxTitle}>CATEGORIA</Text>
-                                </View>
-                                <View style={styles.statBoxValueContainer}>
-                                    <Text style={styles.statBoxValue}>{detail.types[0]?.type.name || 'Seed'}</Text>
-                                </View>
-                            </View>
-
-                            <View style={styles.statBox}>
-                                <View style={styles.statBoxHeader}>
-                                    <MaterialCommunityIcons name="pokeball" size={16} color="#999" />
-                                    <Text style={styles.statBoxTitle}>HABILIDADE</Text>
-                                </View>
-                                <View style={styles.statBoxValueContainer}>
-                                    <Text style={styles.statBoxValue}>{detail.abilities?.[0]?.ability.name.replace('-', ' ') || 'Overgrow'}</Text>
-                                </View>
+                            <View style={styles.statBoxValueContainer}>
+                                <Text style={styles.statBoxValue}>{(detail.weight || 0) / 10} kg</Text>
                             </View>
                         </View>
 
-                        {/* Gender section */}
-                        {renderGender()}
+                        <View style={styles.statBox}>
+                            <View style={styles.statBoxHeader}>
+                                <MaterialCommunityIcons name="format-line-spacing" size={16} color="#999" />
+                                <Text style={styles.statBoxTitle}>HEIGHT</Text>
+                            </View>
+                            <View style={styles.statBoxValueContainer}>
+                                <Text style={styles.statBoxValue}>{(detail.height || 0) / 10} m</Text>
+                            </View>
+                        </View>
 
-                        {/* Weaknesses */}
-                        {detail.weaknesses && detail.weaknesses.length > 0 && (
-                            <>
-                                <Text style={styles.sectionTitle}>Fraquezas</Text>
-                                <View style={styles.weaknessContainer}>
-                                    {detail.weaknesses.map(w => {
-                                        const wColor = getColorsByType(w);
-                                        return (
-                                            <View key={w} style={[styles.weakBadge, { backgroundColor: wColor }]}>
-                                                {TYPE_ICONS[w] && (
-                                                    <View style={styles.iconCircleSmall}>
-                                                        <Image source={TYPE_ICONS[w]} style={styles.detailTypeIconSmall} contentFit="contain" />
-                                                    </View>
-                                                )}
-                                                <Text style={styles.weakText}>{w}</Text>
-                                            </View>
-                                        );
-                                    })}
-                                </View>
-                            </>
-                        )}
+                        <View style={styles.statBox}>
+                            <View style={styles.statBoxHeader}>
+                                <MaterialCommunityIcons name="view-grid-outline" size={16} color="#999" />
+                                <Text style={styles.statBoxTitle}>CATEGORY</Text>
+                            </View>
+                            <View style={styles.statBoxValueContainer}>
+                                <Text style={styles.statBoxValue}>{detail.types[0]?.type.name || 'Seed'}</Text>
+                            </View>
+                        </View>
 
-                        {/* Evolutions */}
-                        {detail.evolutions && detail.evolutions.length > 0 && (
-                            <>
-                                <Text style={styles.sectionTitle}>Evoluções</Text>
-                                <View style={styles.evoCardContainer}>
-                                    {detail.evolutions.map((evo, index) => {
-                                        const mainBg = getColorsByType(detail.types?.[0]?.type.name || 'normal');
+                        <View style={styles.statBox}>
+                            <View style={styles.statBoxHeader}>
+                                <MaterialCommunityIcons name="pokeball" size={16} color="#999" />
+                                <Text style={styles.statBoxTitle}>ABILITY</Text>
+                            </View>
+                            <View style={styles.statBoxValueContainer}>
+                                <Text style={styles.statBoxValue}>{detail.abilities?.[0]?.ability.name.replace('-', ' ') || 'Overgrow'}</Text>
+                            </View>
+                        </View>
+                    </View>
 
-                                        return (
-                                            <React.Fragment key={evo.name}>
-                                                <View style={styles.evoRowItem}>
-                                                    <View style={[styles.evoImageHolder, { backgroundColor: mainBg }]}>
-                                                        {TYPE_OUTLINE_ICONS[detail.types?.[0]?.type.name || 'normal'] && (
-                                                            <Image
-                                                                source={TYPE_OUTLINE_ICONS[detail.types?.[0]?.type.name || 'normal']}
-                                                                style={styles.evoWatermark}
-                                                                contentFit="contain"
-                                                            />
-                                                        )}
-                                                        {evo.imageUrl ? (
-                                                            <Image source={{ uri: evo.imageUrl }} style={styles.evoImage} contentFit="contain" />
-                                                        ) : null}
-                                                    </View>
+                    {/* Gender section */}
+                    {renderGender()}
 
-                                                    <View style={styles.evoInfo}>
-                                                        <Text style={styles.evoName}>{evo.name}</Text>
-                                                        <Text style={styles.evoIdText}>N°{evo.level ? '---' : '001'} (Evol)</Text>
-                                                        <View style={styles.evoTypes}>
-                                                            {detail.types?.map(t => (
-                                                                <View key={t.type.name} style={[styles.evoTypeMini, { backgroundColor: getColorsByType(t.type.name) }]}>
-                                                                    {TYPE_ICONS[t.type.name] && <Image source={TYPE_ICONS[t.type.name]} style={styles.evoTypeIconMini} contentFit="contain" />}
-                                                                </View>
-                                                            ))}
-                                                        </View>
-                                                    </View>
+                    {/* Weaknesses */}
+                    {detail.weaknesses && detail.weaknesses.length > 0 && (
+                        <>
+                            <Text style={styles.sectionTitle}>Weaknesses</Text>
+                            <View style={styles.weaknessContainer}>
+                                {detail.weaknesses.map(w => {
+                                    const wColor = getColorsByType(w);
+                                    return (
+                                        <View key={w} style={[styles.weakBadge, { backgroundColor: wColor }]}>
+                                            {TYPE_ICONS[w] && (
+                                                <View style={styles.iconCircleSmall}>
+                                                    <Image source={TYPE_ICONS[w]} style={styles.detailTypeIconSmall} contentFit="contain" />
+                                                </View>
+                                            )}
+                                            <Text style={styles.weakText}>{w}</Text>
+                                        </View>
+                                    );
+                                })}
+                            </View>
+                        </>
+                    )}
+
+                    {/* Evolutions */}
+                    {detail.evolutions && detail.evolutions.length > 0 && (
+                        <>
+                            <Text style={styles.sectionTitle}>Evolutions</Text>
+                            <View style={styles.evoCardContainer}>
+                                {detail.evolutions.map((evo, index) => {
+                                    const mainBg = getColorsByType(detail.types?.[0]?.type.name || 'normal');
+
+                                    return (
+                                        <React.Fragment key={evo.name}>
+                                            <View style={styles.evoRowItem}>
+                                                <View style={[styles.evoImageHolder, { backgroundColor: mainBg }]}>
+                                                    {TYPE_OUTLINE_ICONS[detail.types?.[0]?.type.name || 'normal'] && (
+                                                        <Image
+                                                            source={TYPE_OUTLINE_ICONS[detail.types?.[0]?.type.name || 'normal']}
+                                                            style={styles.evoWatermark}
+                                                            contentFit="contain"
+                                                        />
+                                                    )}
+                                                    {evo.imageUrl ? (
+                                                        <Image source={{ uri: evo.imageUrl }} style={styles.evoImage} contentFit="contain" />
+                                                    ) : null}
                                                 </View>
 
-                                                {index < detail.evolutions!.length - 1 && (
-                                                    <View style={styles.evoArrowLevel}>
-                                                        <MaterialCommunityIcons name="arrow-down-bold" size={32} color="#1D4ED8" />
-                                                        {detail.evolutions![index + 1]?.level && (
-                                                            <Text style={styles.evoLevelText}>Nível {detail.evolutions![index + 1].level}</Text>
-                                                        )}
+                                                <View style={styles.evoInfo}>
+                                                    <Text style={styles.evoName}>{evo.name}</Text>
+                                                    <Text style={styles.evoIdText}>
+                                                        {evo.imageUrl
+                                                            ? `#${evo.imageUrl.split('/').filter(Boolean).pop()?.replace('.png', '').padStart(3, '0')}`
+                                                            : '---'
+                                                        }
+                                                    </Text>
+                                                    <View style={styles.evoTypes}>
+                                                        {detail.types?.map(t => (
+                                                            <View key={t.type.name} style={[styles.evoTypeMini, { backgroundColor: getColorsByType(t.type.name) }]}>
+                                                                {TYPE_ICONS[t.type.name] && <Image source={TYPE_ICONS[t.type.name]} style={styles.evoTypeIconMini} contentFit="contain" />}
+                                                            </View>
+                                                        ))}
                                                     </View>
-                                                )}
-                                            </React.Fragment>
-                                        );
-                                    })}
-                                </View>
-                            </>
-                        )}
-                        <View style={{ height: 100 }} /> {/* Đệm đáy */}
-                    </ScrollView>
+                                                </View>
+                                            </View>
+
+                                            {index < detail.evolutions!.length - 1 ? (
+                                                <View style={styles.evoArrowLevel}>
+                                                    <MaterialCommunityIcons name="arrow-down-bold" size={32} color="#1D4ED8" />
+                                                    {detail.evolutions![index + 1]?.level ? (
+                                                        <Text style={styles.evoLevelText}>Lv. {detail.evolutions![index + 1].level}</Text>
+                                                    ) : null}
+                                                </View>
+                                            ) : null}
+                                        </React.Fragment>
+                                    );
+                                })}
+                            </View>
+                        </>
+                    )}
                 </View>
-            </SafeAreaView>
+            </ScrollView>
         </View>
     );
 };
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#fff' },
+    container: { flex: 1 },
     center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
 
-    // Header Curved Background Layout
-    headerOverflow: {
-        height: Platform.OS === 'ios' ? 240 : 260,
-        width: '100%',
-        position: 'absolute',
-        top: 0,
-        zIndex: 0,
-        overflow: 'hidden',
-    },
-    headerCurveBg: {
-        width: '150%',
-        height: 380,
-        borderBottomLeftRadius: 300,
-        borderBottomRightRadius: 300,
-        alignSelf: 'center',
-        alignItems: 'center',
-        justifyContent: 'center',
-        position: 'absolute',
-        top: -60,
-    },
-    watermarkIcon: { width: 280, height: 280, position: 'absolute', opacity: 0.15, bottom: 40 },
+    // Tổng quản lý cuộn
+    fullScroll: { flex: 1 },
+    fullScrollContent: { paddingBottom: 0 },
 
-    safeArea: { flex: 1, zIndex: 1 },
+    // Khối xanh ở Top
+    topHeaderSection: {
+        width: '100%',
+        paddingBottom: 20, // Dự trữ chút cho nửa thân dưới Body Trắng đè lên
+        position: 'relative',
+        zIndex: 5,
+    },
+    bgPokeball: {
+        position: 'absolute',
+        width: 280,
+        height: 280,
+        right: -80,
+        bottom: -20,
+        opacity: 0.1,
+    },
+    safeAreaHeader: {
+        paddingTop: Platform.OS === 'ios' ? 10 : 35,
+    },
     headerNav: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingHorizontal: 15,
-        marginTop: Platform.OS === 'ios' ? 10 : 30,
-        zIndex: 5,
+        paddingHorizontal: 20,
+        marginTop: 10,
+        marginBottom: 10,
     },
     backButton: { padding: 5 },
 
-    // Avatar Overlapping Curve
-    imageWrapper: { alignItems: 'center', justifyContent: 'center', zIndex: 5, marginTop: -10, marginBottom: -30, height: 200 },
-    image: { width: 220, height: 220, zIndex: 6, shadowColor: '#000', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.3, shadowRadius: 10 },
+    // Title Khối
+    titleContainer: {
+        paddingHorizontal: 25,
+        marginTop: 5,
+        marginBottom: 15, // Tạo khoảng cách cho avatar bung
+    },
+    titleRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: 8,
+    },
+    name: {
+        fontSize: 38,
+        fontWeight: '900',
+        color: '#fff',
+        textTransform: 'capitalize',
+        flex: 1,
+    },
+    idText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#fff',
+    },
+    typesRow: {
+        flexDirection: 'row',
+        gap: 10,
+    },
+    typeBadgeFlat: {
+        borderRadius: 20,
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 7,
+    },
+    typeBadgeIconCircle: {
+        width: 22,
+        height: 22,
+        borderRadius: 11,
+        backgroundColor: '#fff',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    typeBadgeIcon: {
+        width: 14,
+        height: 14,
+    },
+    typeTextFlat: {
+        color: '#fff',
+        fontSize: 14,
+        fontWeight: 'bold',
+        textTransform: 'capitalize',
+    },
 
-    // Scrollable Body Frame
-    contentWrapper: { flex: 1, zIndex: 2 },
-    contentContainer: { flex: 1 },
-    scrollContent: { paddingTop: 20, paddingHorizontal: 25, paddingBottom: 60 },
+    // Avatar Wrapper (Giao thoa trên đường ranh giới trắng xanh)
+    avatarHolder: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: 160,
+        zIndex: 10,
+        marginBottom: -80,
+    },
+    avatarImage: {
+        width: 240,
+        height: 240,
+        zIndex: 10,
+    },
 
-    // Header texts (Trái)
-    name: { fontSize: 36, fontWeight: '900', color: '#111', textTransform: 'capitalize' },
-    idText: { fontSize: 16, fontWeight: 'bold', color: '#666', marginBottom: 15, marginTop: 2 },
-    typesRow: { flexDirection: 'row', gap: 10, marginBottom: 25 },
-    typeBadge: { borderRadius: 24, paddingHorizontal: 12, paddingVertical: 6, flexDirection: 'row', alignItems: 'center', gap: 6 },
-    iconCircle: { width: 20, height: 20, borderRadius: 10, backgroundColor: '#fff', justifyContent: 'center', alignItems: 'center' },
-    typeText: { color: '#fff', fontSize: 13, fontWeight: 'bold', textTransform: 'capitalize' },
-    detailTypeIcon: { width: 12, height: 12 },
+    // KHỐI CONTENT MÀU TRẮNG
+    whiteBodyCurve: {
+        backgroundColor: '#fff',
+        borderTopLeftRadius: 50,
+        borderTopRightRadius: 50,
+        paddingHorizontal: 25,
+        paddingBottom: 60,
+        marginTop: 0,
+        zIndex: 1,
+        minHeight: '60%',
+        flex: 1,
+    },
+    bodySpacer: {
+        height: 90,
+    },
 
-    // Desc
+    // Description & Fonts
     descriptionText: { fontSize: 15, color: '#555', lineHeight: 22, textAlign: 'justify', marginBottom: 30 },
 
     // Stats 2x2 Grid

@@ -3,9 +3,28 @@ import { View, Text, TouchableOpacity, ScrollView, Alert, Modal, Pressable, Swit
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useColorScheme } from 'nativewind';
+import Animated, { useAnimatedStyle, withSpring, withTiming } from 'react-native-reanimated';
 import { useFavoritesStore } from '../store/useFavoritesStore';
 import { useSettingsStore, LanguageCode } from '../store/useSettingsStore';
 import { LANGUAGES, useTranslation } from '../i18n/translations';
+
+const ThemeSwitch = ({ isDark }: { isDark: boolean }) => {
+    const thumbStyle = useAnimatedStyle(() => ({
+        transform: [{ translateX: withSpring(isDark ? 30 : 4, { damping: 15, stiffness: 150 }) }]
+    }));
+
+    const trackStyle = useAnimatedStyle(() => ({
+        backgroundColor: withTiming(isDark ? '#60a5fa' : '#e5e7eb', { duration: 200 })
+    }));
+
+    return (
+        <Animated.View className="w-[58px] h-[32px] rounded-full justify-center relative border border-gray-100" style={trackStyle}>
+            <Animated.View className="w-[24px] h-[24px] bg-white rounded-full shadow-sm absolute left-0 flex items-center justify-center" style={thumbStyle}>
+                <Ionicons name={isDark ? "moon" : "sunny"} size={14} color={isDark ? "#60a5fa" : "#f59e0b"} />
+            </Animated.View>
+        </Animated.View>
+    );
+};
 
 export const SettingsScreen = () => {
     const { favorites, clearFavorites } = useFavoritesStore();
@@ -109,23 +128,23 @@ export const SettingsScreen = () => {
                         </View>
                     </TouchableOpacity>
 
-                    <View className="flex-row items-center justify-between py-2 mt-2">
+                    <TouchableOpacity
+                        className="flex-row items-center justify-between py-2 mt-2"
+                        onPress={toggleColorScheme}
+                        activeOpacity={0.7}
+                    >
                         <View className="flex-row items-center">
-                            <Ionicons name="color-palette-outline" size={24} color="#555" />
-                            <Text className="text-base text-[#333] font-semibold ml-3">{t.theme}</Text>
-                        </View>
-                        <View className="flex-row items-center gap-2">
-                            <Text className="text-sm text-gray-400 font-medium">
-                                {colorScheme === 'dark' ? t.themeDark : t.themeLight}
-                            </Text>
-                            <Switch
-                                value={colorScheme === 'dark'}
-                                onValueChange={toggleColorScheme}
-                                trackColor={{ false: '#d1d5db', true: '#ef4444' }}
-                                thumbColor={'#ffffff'}
+                            <Ionicons
+                                name="moon-outline"
+                                size={24}
+                                color="#555"
                             />
+                            <Text className="text-base text-[#333] font-semibold ml-3">{t.darkMode}</Text>
                         </View>
-                    </View>
+                        <View className="flex-row items-center" pointerEvents="none">
+                            <ThemeSwitch isDark={colorScheme === 'dark'} />
+                        </View>
+                    </TouchableOpacity>
                 </View>
 
                 {/* DATA MANAGEMENT SECTION */}

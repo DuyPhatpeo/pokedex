@@ -1,14 +1,15 @@
 import React, { useRef, useEffect } from 'react';
-import { View, Animated, StyleSheet } from 'react-native';
+import { View, Animated } from 'react-native';
 
 interface Props {
     height?: number;
     width?: string | number;
     borderRadius?: number;
     style?: object;
+    className?: string; // Add className prop for nativewind
 }
 
-export const SkeletonBox = ({ height = 20, width = '100%', borderRadius = 8, style }: Props) => {
+export const SkeletonBox = ({ height = 20, width = '100%', borderRadius = 8, style, className = '' }: Props) => {
     const shimmer = useRef(new Animated.Value(0)).current;
 
     useEffect(() => {
@@ -36,8 +37,8 @@ export const SkeletonBox = ({ height = 20, width = '100%', borderRadius = 8, sty
 
     return (
         <Animated.View
+            className={`bg-[#d0d0d0] ${className}`}
             style={[
-                styles.box,
                 { height, width: width as any, borderRadius, opacity },
                 style,
             ]}
@@ -48,11 +49,11 @@ export const SkeletonBox = ({ height = 20, width = '100%', borderRadius = 8, sty
 // ---------- Skeleton Card for PokemonCard ----------
 export const SkeletonCard = () => {
     return (
-        <View style={styles.card}>
-            <View style={styles.leftInfo}>
+        <View className="rounded-[28px] my-[10px] mx-[15px] h-[140px] flex-row items-center px-[20px] bg-[#f0f0f0] justify-between">
+            <View className="flex-1 pr-3">
                 <SkeletonBox height={14} width={50} borderRadius={6} />
-                <SkeletonBox height={22} width={130} borderRadius={8} style={{ marginTop: 8 }} />
-                <View style={{ flexDirection: 'row', gap: 8, marginTop: 14 }}>
+                <SkeletonBox height={22} width={130} borderRadius={8} className="mt-2" />
+                <View className="flex-row gap-2 mt-[14px]">
                     <SkeletonBox height={26} width={70} borderRadius={20} />
                     <SkeletonBox height={26} width={70} borderRadius={20} />
                 </View>
@@ -65,50 +66,50 @@ export const SkeletonCard = () => {
 // ---------- Skeleton Detail Screen ----------
 export const SkeletonDetailScreen = ({ bgColor }: { bgColor: string }) => {
     return (
-        <View style={{ flex: 1, backgroundColor: bgColor }}>
+        <View className="flex-1" style={{ backgroundColor: bgColor }}>
             {/* Header */}
-            <View style={{ paddingHorizontal: 24, paddingTop: 60, paddingBottom: 20 }}>
-                <SkeletonBox height={14} width={50} borderRadius={6} style={{ backgroundColor: 'rgba(255,255,255,0.4)', marginBottom: 12 }} />
-                <SkeletonBox height={38} width={200} borderRadius={10} style={{ backgroundColor: 'rgba(255,255,255,0.4)', marginBottom: 14 }} />
-                <View style={{ flexDirection: 'row', gap: 10 }}>
-                    <SkeletonBox height={30} width={90} borderRadius={20} style={{ backgroundColor: 'rgba(255,255,255,0.35)' }} />
-                    <SkeletonBox height={30} width={90} borderRadius={20} style={{ backgroundColor: 'rgba(255,255,255,0.35)' }} />
+            <View className="px-6 pt-[60px] pb-5">
+                <SkeletonBox height={14} width={50} borderRadius={6} className="bg-white/40 mb-3" />
+                <SkeletonBox height={38} width={200} borderRadius={10} className="bg-white/40 mb-[14px]" />
+                <View className="flex-row gap-2.5">
+                    <SkeletonBox height={30} width={90} borderRadius={20} className="bg-white/35" />
+                    <SkeletonBox height={30} width={90} borderRadius={20} className="bg-white/35" />
                 </View>
             </View>
 
             {/* Avatar placeholder */}
-            <View style={{ alignItems: 'center', marginBottom: -70, zIndex: 10 }}>
-                <SkeletonBox height={160} width={160} borderRadius={80} style={{ backgroundColor: 'rgba(255,255,255,0.3)' }} />
+            <View className="items-center -mb-[70px] z-10">
+                <SkeletonBox height={160} width={160} borderRadius={80} className="bg-white/30" />
             </View>
 
             {/* White body */}
-            <View style={{ flex: 1, backgroundColor: '#fff', borderTopLeftRadius: 50, borderTopRightRadius: 50, paddingHorizontal: 24, paddingTop: 90 }}>
+            <View className="flex-1 bg-white rounded-t-[50px] px-6 pt-[90px]">
                 {/* Description */}
-                <SkeletonBox height={14} width="100%" borderRadius={6} style={{ marginBottom: 8 }} />
-                <SkeletonBox height={14} width="85%" borderRadius={6} style={{ marginBottom: 24 }} />
+                <SkeletonBox height={14} width="100%" borderRadius={6} className="mb-2" />
+                <SkeletonBox height={14} width="85%" borderRadius={6} className="mb-6" />
 
                 {/* Stat boxes */}
-                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginBottom: 24 }}>
+                <View className="flex-row flex-wrap gap-3 mb-6">
                     {[1, 2, 3, 4].map(i => (
                         <SkeletonBox key={i} height={70} width="48%" borderRadius={16} />
                     ))}
                 </View>
 
                 {/* Gender */}
-                <SkeletonBox height={14} width={80} borderRadius={6} style={{ marginBottom: 10 }} />
-                <SkeletonBox height={12} width="100%" borderRadius={6} style={{ marginBottom: 24 }} />
+                <SkeletonBox height={14} width={80} borderRadius={6} className="mb-2.5" />
+                <SkeletonBox height={12} width="100%" borderRadius={6} className="mb-6" />
 
                 {/* Weaknesses */}
-                <SkeletonBox height={22} width={120} borderRadius={8} style={{ marginBottom: 14 }} />
-                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 24 }}>
+                <SkeletonBox height={22} width={120} borderRadius={8} className="mb-[14px]" />
+                <View className="flex-row flex-wrap gap-2 mb-6">
                     {[1, 2, 3, 4, 5].map(i => (
                         <SkeletonBox key={i} height={30} width={80} borderRadius={20} />
                     ))}
                 </View>
 
                 {/* Evolutions */}
-                <SkeletonBox height={22} width={120} borderRadius={8} style={{ marginBottom: 14 }} />
-                <View style={{ flexDirection: 'row', gap: 14, alignItems: 'center' }}>
+                <SkeletonBox height={22} width={120} borderRadius={8} className="mb-[14px]" />
+                <View className="flex-row gap-[14px] items-center">
                     <SkeletonBox height={80} width={80} borderRadius={40} />
                     <SkeletonBox height={32} width={32} borderRadius={16} />
                     <SkeletonBox height={80} width={80} borderRadius={40} />
@@ -117,24 +118,3 @@ export const SkeletonDetailScreen = ({ bgColor }: { bgColor: string }) => {
         </View>
     );
 };
-
-const styles = StyleSheet.create({
-    box: {
-        backgroundColor: '#d0d0d0',
-    },
-    card: {
-        borderRadius: 28,
-        marginVertical: 10,
-        marginHorizontal: 15,
-        height: 140,
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: 20,
-        backgroundColor: '#f0f0f0',
-        justifyContent: 'space-between',
-    },
-    leftInfo: {
-        flex: 1,
-        paddingRight: 12,
-    },
-});

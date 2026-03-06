@@ -1,5 +1,5 @@
 import React, { useEffect, memo } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, Platform } from 'react-native';
 import { Image } from 'expo-image';
 import { usePokemonStore } from '../store/usePokemonStore';
 import { PokemonListItem } from '../types/pokemon';
@@ -33,152 +33,57 @@ export const PokemonCard = memo(({ item, onPress }: Props) => {
 
     return (
         <TouchableOpacity
-            style={[styles.card, {
+            className="rounded-[28px] my-[10px] mx-[15px] h-[140px] flex-row items-center pl-[20px] overflow-hidden relative border-[1.5px]"
+            style={{
                 backgroundColor: lightBgColor,
                 borderColor: hexToRgba(bgColor, 0.5),
-            }]}
+            }}
             onPress={() => onPress(item.name, bgColor)}
             activeOpacity={0.9}
         >
             {/* Right dark background shape */}
-            <View style={[styles.rightBgShape, { backgroundColor: bgColor }]}>
+            <View
+                className="absolute right-0 top-0 bottom-0 w-[38%] rounded-l-[60px] justify-center items-center overflow-hidden"
+                style={{ backgroundColor: bgColor }}
+            >
                 {TYPE_OUTLINE_ICONS[mainType] && (
                     <Image
                         source={TYPE_OUTLINE_ICONS[mainType]}
-                        style={styles.watermarkIcon}
+                        style={{ position: 'absolute', right: -10, width: 120, height: 120, opacity: 0.2 }}
                         contentFit="contain"
                     />
                 )}
             </View>
 
-            <View style={styles.infoContainer}>
-                <Text style={styles.id}>{formattedId}</Text>
-                <Text style={styles.name} numberOfLines={1}>{detail.name}</Text>
-                <View style={styles.typesContainer}>
+            <View className="flex-1 z-[2]">
+                <Text className="text-[15px] text-[#555] font-bold mb-1">{formattedId}</Text>
+                <Text className="text-[26px] font-black text-[#111] capitalize mb-[15px]" numberOfLines={1}>{detail.name}</Text>
+                <View className="flex-row flex-wrap gap-2">
                     {detail.types.map((t) => (
-                        <View key={t.type.name} style={[styles.typeBadge, { backgroundColor: getColorsByType(t.type.name) }]}>
+                        <View
+                            key={t.type.name}
+                            className="rounded-[20px] px-2 py-[5px] flex-row items-center gap-[6px] pl-1"
+                            style={{ backgroundColor: getColorsByType(t.type.name) }}
+                        >
                             {TYPE_ICONS[t.type.name] && (
-                                <View style={styles.iconCircle}>
-                                    <Image source={TYPE_ICONS[t.type.name]} style={styles.typeIcon} contentFit="contain" />
+                                <View className="w-[22px] h-[22px] rounded-full bg-white justify-center items-center">
+                                    <Image source={TYPE_ICONS[t.type.name]} style={{ width: 14, height: 14 }} contentFit="contain" />
                                 </View>
                             )}
-                            <Text style={styles.typeText}>{t.type.name}</Text>
+                            <Text className="text-white text-[13px] font-bold capitalize mr-[6px]">{t.type.name}</Text>
                         </View>
                     ))}
                 </View>
             </View>
 
-            <View style={styles.imageContainer}>
+            <View className="w-[120px] h-[120px] justify-center items-center z-[3] absolute right-[15px] top-[10px]">
                 <Image
                     source={{ uri: imageUrl }}
-                    style={styles.image}
+                    style={{ width: 110, height: 110 }}
                     contentFit="contain"
                     transition={500}
                 />
             </View>
         </TouchableOpacity>
     );
-});
-
-const styles = StyleSheet.create({
-    card: {
-        borderRadius: 28,
-        marginVertical: 10,
-        marginHorizontal: 15,
-        height: 140,
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingLeft: 20,
-        overflow: 'hidden',
-        position: 'relative',
-        borderWidth: 1.5,
-    },
-    loadingCard: {
-        backgroundColor: '#f5f5f5',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    rightBgShape: {
-        position: 'absolute',
-        right: 0,
-        top: 0,
-        bottom: 0,
-        width: '38%',
-        borderTopLeftRadius: 60, // Bo sóng hình cung
-        borderBottomLeftRadius: 60,
-        justifyContent: 'center',
-        alignItems: 'center',
-        overflow: 'hidden',
-    },
-    watermarkIcon: {
-        width: 120,
-        height: 120,
-        opacity: 0.2, // Icon chìm
-        position: 'absolute',
-        right: -10,
-    },
-    infoContainer: {
-        flex: 1,
-        zIndex: 2,
-    },
-    id: {
-        fontSize: 15,
-        color: '#555',
-        fontWeight: 'bold',
-        marginBottom: 4,
-    },
-    name: {
-        fontSize: 26,
-        fontWeight: '900', // Bold title
-        color: '#111',
-        textTransform: 'capitalize',
-        marginBottom: 15,
-    },
-    typesContainer: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        gap: 8,
-    },
-    typeBadge: {
-        borderRadius: 20,
-        paddingHorizontal: 8,
-        paddingVertical: 5,
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
-        paddingLeft: 4,
-    },
-    iconCircle: {
-        width: 22,
-        height: 22,
-        borderRadius: 11,
-        backgroundColor: '#fff',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    typeIcon: {
-        width: 14,
-        height: 14,
-    },
-    typeText: {
-        color: '#fff',
-        fontSize: 13,
-        fontWeight: 'bold',
-        textTransform: 'capitalize',
-        marginRight: 6,
-    },
-    imageContainer: {
-        width: 120,
-        height: 120,
-        justifyContent: 'center',
-        alignItems: 'center',
-        zIndex: 3,
-        position: 'absolute',
-        right: 15,
-        top: 10,
-    },
-    image: {
-        width: 110,
-        height: 110,
-    }
 });

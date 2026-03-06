@@ -1,8 +1,8 @@
 import React, { useEffect, useCallback, useState, useRef } from 'react';
-import { View, FlatList, StyleSheet, ActivityIndicator, SafeAreaView, Text, TextInput, TouchableOpacity, Platform, Modal, Pressable } from 'react-native';
+import { View, FlatList, ActivityIndicator, Text, TextInput, TouchableOpacity, Platform, Modal, Pressable } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { usePokemonStore } from '../store/usePokemonStore';
 import { PokemonCard } from '../components/PokemonCard';
 import { PokemonListItem } from '../types/pokemon';
@@ -88,7 +88,7 @@ export const HomeScreen = ({ navigation }: Props) => {
     const renderFooter = () => {
         if (!isLoadingMore) return null;
         return (
-            <View style={styles.footerLoader}>
+            <View className="py-5 items-center">
                 <ActivityIndicator size="large" color="#e3350d" />
             </View>
         );
@@ -96,17 +96,17 @@ export const HomeScreen = ({ navigation }: Props) => {
 
     if (isLoading && pokemonList.length === 0) {
         return (
-            <View style={styles.center}>
+            <View className="flex-1 justify-center items-center bg-white">
                 <ActivityIndicator size="large" color="#e3350d" />
             </View>
         );
     }
 
     const POKEMON_TYPES = Object.keys(TYPE_ICONS).filter(t => t !== 'unknown' && t !== 'shadow');
-    const activeSortLabel = SORT_OPTIONS.find(o => o.key === sortOption)?.label || 'Số Thứ Tự';
+    const activeSortLabel = SORT_OPTIONS.find(o => o.key === sortOption)?.label || 'ID Ascending';
 
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView className="flex-1 bg-white">
             {/* ===== SORT MODAL ===== */}
             <Modal
                 visible={showSortModal}
@@ -114,17 +114,21 @@ export const HomeScreen = ({ navigation }: Props) => {
                 animationType="slide"
                 onRequestClose={() => setShowSortModal(false)}
             >
-                <Pressable style={styles.modalOverlay} onPress={() => setShowSortModal(false)}>
-                    <Pressable style={[styles.modalContent, { paddingBottom: insets.bottom + 100, marginBottom: -100 }]} onPress={() => { }}>
+                <Pressable className="flex-1 justify-end bg-black/50" onPress={() => setShowSortModal(false)}>
+                    <Pressable
+                        className="bg-white rounded-t-[28px] p-6 pb-0"
+                        style={{ paddingBottom: insets.bottom + 100, marginBottom: -100 }}
+                        onPress={() => { }}
+                    >
                         {/* Handle bar */}
-                        <View style={styles.modalHandle} />
-                        <Text style={styles.modalTitle}>Sort Pokémon</Text>
+                        <View className="w-10 h-1 rounded-full bg-gray-300 self-center mb-5" />
+                        <Text className="text-xl font-black text-[#111] mb-4">Sort Pokémon</Text>
                         {SORT_OPTIONS.map(option => {
                             const isActive = sortOption === option.key;
                             return (
                                 <TouchableOpacity
                                     key={option.key}
-                                    style={[styles.sortOptionRow, isActive && styles.sortOptionActive]}
+                                    className={`flex-row items-center py-3.5 px-4 rounded-2xl mb-2 ${isActive ? 'bg-[#303943]' : 'bg-[#f7f7f7]'}`}
                                     onPress={() => handleSelectSort(option.key)}
                                     activeOpacity={0.7}
                                 >
@@ -134,7 +138,7 @@ export const HomeScreen = ({ navigation }: Props) => {
                                         color={isActive ? '#fff' : '#555'}
                                         style={{ marginRight: 12 }}
                                     />
-                                    <Text style={[styles.sortOptionText, isActive && styles.sortOptionTextActive]}>
+                                    <Text className={`text-base font-semibold ${isActive ? 'text-white' : 'text-[#333]'}`}>
                                         {option.label}
                                     </Text>
                                     {isActive && (
@@ -148,18 +152,26 @@ export const HomeScreen = ({ navigation }: Props) => {
             </Modal>
 
             {/* ===== HEADER ===== */}
-            <View style={styles.header}>
+            <View className="px-4 pt-4 pb-2.5">
                 {/* Logo thay cho chữ Pokédex */}
                 <Image
                     source={require('../../assets/Pokedex.png')}
-                    style={styles.headerLogo}
+                    style={{ width: 110, height: 36, marginBottom: 12 }}
                     contentFit="contain"
                 />
-                <View style={styles.searchRow}>
-                    <View style={styles.searchContainer}>
-                        <Ionicons name="search" size={20} color="#747476" style={styles.searchIcon} />
+                <View className="flex-row items-center">
+                    <View
+                        className="flex-row items-center bg-white rounded-full px-[15px] h-[50px] flex-1"
+                        style={Platform.select({
+                            ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 6 },
+                            android: { elevation: 4 },
+                            web: { boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)' } as any
+                        })}
+                    >
+                        <Ionicons name="search" size={20} color="#747476" style={{ marginRight: 10 }} />
                         <TextInput
-                            style={[styles.searchInput, Platform.OS === 'web' && { outlineStyle: 'none' } as any]}
+                            className="flex-1 text-base text-[#303943]"
+                            style={Platform.OS === 'web' && { outlineStyle: 'none' } as any}
                             placeholder="Search Pokemon..."
                             placeholderTextColor="#747476"
                             value={localSearch}
@@ -168,24 +180,24 @@ export const HomeScreen = ({ navigation }: Props) => {
                             autoCorrect={false}
                         />
                         {localSearch.length > 0 && (
-                            <TouchableOpacity onPress={handleClearSearch} style={styles.clearIconWrapper}>
+                            <TouchableOpacity onPress={handleClearSearch} className="p-1.5">
                                 <Ionicons name="close-circle" size={20} color="#b0b0b0" />
                             </TouchableOpacity>
                         )}
                     </View>
 
                     {/* Nút Sort */}
-                    <TouchableOpacity onPress={() => setShowSortModal(true)} style={styles.sortButton} activeOpacity={0.8}>
+                    <TouchableOpacity onPress={() => setShowSortModal(true)} className="w-[50px] h-[50px] rounded-full bg-[#303943] justify-center items-center ml-2.5" activeOpacity={0.8}>
                         <MaterialCommunityIcons name="sort-variant" size={22} color="#fff" />
                     </TouchableOpacity>
                 </View>
 
                 {/* Active Sort Indicator */}
                 {sortOption !== 'id-asc' && (
-                    <View style={styles.activeSortBadge}>
+                    <View className="flex-row items-center mt-2.5 self-start bg-[#fff0ee] rounded-xl px-2.5 py-1 border border-[#e3350d22]">
                         <Ionicons name="funnel" size={12} color="#e3350d" style={{ marginRight: 4 }} />
-                        <Text style={styles.activeSortText}>{activeSortLabel}</Text>
-                        <TouchableOpacity onPress={() => setSortOption('id-asc')} style={{ marginLeft: 6 }}>
+                        <Text className="text-xs font-semibold text-[#e3350d]">{activeSortLabel}</Text>
+                        <TouchableOpacity onPress={() => setSortOption('id-asc')} className="ml-1.5">
                             <Ionicons name="close-circle" size={14} color="#e3350d" />
                         </TouchableOpacity>
                     </View>
@@ -198,19 +210,19 @@ export const HomeScreen = ({ navigation }: Props) => {
                 data={['all', ...POKEMON_TYPES]}
                 keyExtractor={item => item}
                 showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.typeFilterList}
-                style={styles.typeFilterScroll}
+                className="h-[62px] mb-1.5 flex-none"
+                contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 6, gap: 8 }}
                 renderItem={({ item }) => {
                     if (item === 'all') {
                         const isSelected = activeTypeFilter === null;
                         return (
                             <TouchableOpacity
-                                style={[styles.typeFilterBadge, { backgroundColor: isSelected ? '#303943' : '#f0f0f0', flexDirection: 'row', gap: 5 }]}
+                                className={`px-3 py-2.5 rounded-[20px] justify-center items-center flex-row gap-1.5 ${isSelected ? 'bg-[#303943]' : 'bg-[#f0f0f0]'}`}
                                 onPress={() => setTypeFilter(null)}
                                 activeOpacity={0.7}
                             >
                                 <Ionicons name="apps" size={14} color={isSelected ? '#fff' : '#555'} />
-                                <Text style={[styles.typeFilterText, { color: isSelected ? '#fff' : '#555' }]}>
+                                <Text className={`text-[13px] font-bold capitalize ${isSelected ? 'text-white' : 'text-[#555]'}`}>
                                     All
                                 </Text>
                             </TouchableOpacity>
@@ -222,16 +234,17 @@ export const HomeScreen = ({ navigation }: Props) => {
                     const iconSource = TYPE_ICONS[item];
                     return (
                         <TouchableOpacity
-                            style={[styles.typeFilterBadge, { backgroundColor: bgColor, flexDirection: 'row', gap: 6 }]}
+                            className="px-3 py-2.5 rounded-[20px] justify-center items-center flex-row gap-1.5"
+                            style={{ backgroundColor: bgColor }}
                             onPress={() => handleTypePress(item)}
                             activeOpacity={0.7}
                         >
                             {iconSource && (
-                                <View style={[styles.typeIconCircle, { backgroundColor: '#fff' }]}>
-                                    <Image source={iconSource} style={styles.typeIconImg} contentFit="contain" />
+                                <View className="w-5 h-5 rounded-full bg-white justify-center items-center">
+                                    <Image source={iconSource} style={{ width: 12, height: 12 }} contentFit="contain" />
                                 </View>
                             )}
-                            <Text style={[styles.typeFilterText, { color: isSelected ? '#fff' : typeColor }]}>
+                            <Text className="text-[13px] font-bold capitalize" style={{ color: isSelected ? '#fff' : typeColor }}>
                                 {item}
                             </Text>
                         </TouchableOpacity>
@@ -245,7 +258,7 @@ export const HomeScreen = ({ navigation }: Props) => {
                 data={pokemonList}
                 renderItem={renderItem}
                 keyExtractor={(item) => item.name}
-                contentContainerStyle={styles.listContent}
+                contentContainerStyle={{ paddingHorizontal: 10, paddingBottom: 20 }}
                 onEndReached={() => loadPokemonList()}
                 onEndReachedThreshold={0.5}
                 ListFooterComponent={renderFooter}
@@ -254,186 +267,3 @@ export const HomeScreen = ({ navigation }: Props) => {
         </SafeAreaView>
     );
 };
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-    },
-    center: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#fff',
-    },
-    header: {
-        paddingHorizontal: 16,
-        paddingTop: 36,
-        paddingBottom: 10,
-    },
-    headerLogo: {
-        width: 110,
-        height: 36,
-        marginBottom: 12,
-    },
-    searchRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    searchContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#fff',
-        borderRadius: 25,
-        paddingHorizontal: 15,
-        height: 50,
-        flex: 1,
-        ...Platform.select({
-            ios: {
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.1,
-                shadowRadius: 6,
-            },
-            android: {
-                elevation: 4,
-            },
-            web: {
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)'
-            }
-        }),
-    },
-    sortButton: {
-        width: 50,
-        height: 50,
-        borderRadius: 25,
-        backgroundColor: '#303943',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginLeft: 10,
-    },
-    searchIcon: {
-        marginRight: 10,
-    },
-    clearIconWrapper: {
-        padding: 5,
-    },
-    searchInput: {
-        flex: 1,
-        fontSize: 16,
-        color: '#303943',
-    },
-    activeSortBadge: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginTop: 10,
-        alignSelf: 'flex-start',
-        backgroundColor: '#fff0ee',
-        borderRadius: 12,
-        paddingHorizontal: 10,
-        paddingVertical: 5,
-        borderWidth: 1,
-        borderColor: '#e3350d22',
-    },
-    activeSortText: {
-        fontSize: 12,
-        color: '#e3350d',
-        fontWeight: '600',
-    },
-
-    // Type filter
-    typeFilterScroll: {
-        height: 62,
-        marginBottom: 6,
-    },
-    typeFilterList: {
-        paddingHorizontal: 16,
-        paddingVertical: 6,
-        gap: 8,
-    },
-    typeFilterBadge: {
-        paddingHorizontal: 12,
-        paddingVertical: 10,
-        borderRadius: 20,
-        justifyContent: 'center',
-        alignItems: 'center',
-        flexDirection: 'row',
-    },
-    typeFilterText: {
-        fontSize: 13,
-        fontWeight: '700',
-        textTransform: 'capitalize',
-    },
-    typeIconCircle: {
-        width: 20,
-        height: 20,
-        borderRadius: 10,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    typeIconImg: {
-        width: 12,
-        height: 12,
-    },
-
-    // List
-    listContent: {
-        paddingHorizontal: 10,
-        paddingBottom: 20,
-    },
-    footerLoader: {
-        paddingVertical: 20,
-        alignItems: 'center',
-    },
-
-    // Sort Modal
-    modalOverlay: {
-        flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.5)',
-        justifyContent: 'flex-end',
-    },
-    modalContent: {
-        backgroundColor: '#fff',
-        borderTopLeftRadius: 28,
-        borderTopRightRadius: 28,
-        padding: 24,
-        paddingBottom: 0,
-    },
-    modalInner: {
-        paddingBottom: 16,
-    },
-    modalHandle: {
-        width: 40,
-        height: 4,
-        borderRadius: 2,
-        backgroundColor: '#ddd',
-        alignSelf: 'center',
-        marginBottom: 20,
-    },
-    modalTitle: {
-        fontSize: 20,
-        fontWeight: '900',
-        color: '#111',
-        marginBottom: 16,
-    },
-    sortOptionRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingVertical: 14,
-        paddingHorizontal: 16,
-        borderRadius: 16,
-        marginBottom: 8,
-        backgroundColor: '#f7f7f7',
-    },
-    sortOptionActive: {
-        backgroundColor: '#303943',
-    },
-    sortOptionText: {
-        fontSize: 16,
-        color: '#333',
-        fontWeight: '600',
-    },
-    sortOptionTextActive: {
-        color: '#fff',
-    },
-});

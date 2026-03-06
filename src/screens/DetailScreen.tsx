@@ -239,15 +239,21 @@ export const DetailScreen = ({ route, navigation }: Props) => {
                             <Text className="text-xl font-black text-[#111] dark:text-white mb-[15px]">{t.evolution}</Text>
                             <View className="border border-gray-200 dark:border-[#333] rounded-[24px] p-5 bg-white dark:bg-[#1A1A1A]">
                                 {detail.evolutions.map((evo, index) => {
-                                    const mainBg = getColorsByType(detail.types?.[0]?.type.name || 'normal');
+                                    const evolColor = getColorsByType(evo.types?.[0] || 'normal');
 
                                     return (
                                         <React.Fragment key={evo.name}>
-                                            <View className="flex-row items-center gap-[15px]">
-                                                <View className="w-20 h-20 rounded-[40px] justify-center items-center overflow-hidden relative" style={{ backgroundColor: mainBg }}>
-                                                    {TYPE_OUTLINE_ICONS[detail.types?.[0]?.type.name || 'normal'] && (
+                                            <TouchableOpacity
+                                                className="flex-row items-center gap-[15px]"
+                                                onPress={() => navigation.push('Detail', {
+                                                    name: evo.name,
+                                                    bgColor: evolColor
+                                                })}
+                                            >
+                                                <View className="w-20 h-20 rounded-[40px] justify-center items-center overflow-hidden relative" style={{ backgroundColor: evolColor }}>
+                                                    {TYPE_OUTLINE_ICONS[evo.types?.[0] || 'normal'] && (
                                                         <Image
-                                                            source={TYPE_OUTLINE_ICONS[detail.types?.[0]?.type.name || 'normal']}
+                                                            source={TYPE_OUTLINE_ICONS[evo.types?.[0] || 'normal']}
                                                             style={{ position: 'absolute', width: 60, height: 60, opacity: 0.2 }}
                                                             contentFit="contain"
                                                         />
@@ -266,17 +272,17 @@ export const DetailScreen = ({ route, navigation }: Props) => {
                                                         }
                                                     </Text>
                                                     <View className="flex-row gap-1.5 flex-wrap">
-                                                        {detail.types?.map(t => (
-                                                            <View key={t.type.name} className="flex-row items-center gap-[5px] px-2 py-1 rounded-[20px]" style={{ backgroundColor: getColorsByType(t.type.name) }}>
+                                                        {evo.types?.map(t => (
+                                                            <View key={t} className="flex-row items-center gap-[5px] px-2 py-1 rounded-[20px]" style={{ backgroundColor: getColorsByType(t) }}>
                                                                 <View className="w-[18px] h-[18px] rounded-full bg-white justify-center items-center">
-                                                                    {TYPE_ICONS[t.type.name] && <Image source={TYPE_ICONS[t.type.name]} style={{ width: 10, height: 10 }} contentFit="contain" />}
+                                                                    {TYPE_ICONS[t] && <Image source={TYPE_ICONS[t]} style={{ width: 10, height: 10 }} contentFit="contain" />}
                                                                 </View>
-                                                                <Text className="text-white text-[11px] font-bold capitalize">{t.type.name}</Text>
+                                                                <Text className="text-white text-[11px] font-bold capitalize">{t}</Text>
                                                             </View>
                                                         ))}
                                                     </View>
                                                 </View>
-                                            </View>
+                                            </TouchableOpacity>
 
                                             {index < detail.evolutions!.length - 1 ? (
                                                 <View className="items-center my-2.5 ml-[25px]">

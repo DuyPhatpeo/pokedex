@@ -49,6 +49,7 @@ export interface PokemonDetail {
     name: string;
     level: number | null;
     imageUrl?: string;
+    types?: string[];
   }[];
   genderRate?: number; // 0-8, -1 if genderless
 }

@@ -2,7 +2,7 @@ import React, { useEffect, useCallback, useState, useRef } from 'react';
 import { View, FlatList, ActivityIndicator, Text, TextInput, TouchableOpacity, Platform, Modal, Pressable } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useColorScheme } from 'nativewind';
 import { usePokemonStore } from '../store/usePokemonStore';
 import { PokemonCard } from '../components/PokemonCard';
@@ -108,7 +108,7 @@ export const HomeScreen = ({ navigation }: Props) => {
     const activeSortLabel = SORT_OPTIONS.find(o => o.key === sortOption)?.label || t.sortIdAsc;
 
     return (
-        <SafeAreaView className="flex-1 bg-white dark:bg-black">
+        <View className="flex-1 bg-white dark:bg-black" style={{ paddingTop: insets.top }}>
             {/* ===== SORT MODAL ===== */}
             <Modal
                 visible={showSortModal}
@@ -283,6 +283,6 @@ export const HomeScreen = ({ navigation }: Props) => {
                 ListFooterComponent={renderFooter}
                 showsVerticalScrollIndicator={false}
             />
-        </SafeAreaView>
+        </View>
     );
 };

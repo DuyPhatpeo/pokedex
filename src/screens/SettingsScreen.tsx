@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Alert, Modal, Pressable, Switch } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useColorScheme } from 'nativewind';
 import Animated, { useAnimatedStyle, withSpring, withTiming } from 'react-native-reanimated';
@@ -31,6 +31,7 @@ export const SettingsScreen = () => {
     const { language, setLanguage } = useSettingsStore();
     const { colorScheme, toggleColorScheme } = useColorScheme();
     const t = useTranslation();
+    const insets = useSafeAreaInsets();
 
     const [showLanguageModal, setShowLanguageModal] = useState(false);
     const selectedLanguage = LANGUAGES.find((lang) => lang.code === language) || LANGUAGES[0];
@@ -59,7 +60,7 @@ export const SettingsScreen = () => {
     };
 
     return (
-        <SafeAreaView className="flex-1 bg-white dark:bg-black">
+        <View className="flex-1 bg-white dark:bg-black" style={{ paddingTop: insets.top }}>
             {/* ===== LANGUAGE MODAL ===== */}
             <Modal
                 visible={showLanguageModal}
@@ -183,6 +184,6 @@ export const SettingsScreen = () => {
                     </View>
                 </View>
             </ScrollView>
-        </SafeAreaView>
+        </View>
     );
 };

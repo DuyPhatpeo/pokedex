@@ -183,7 +183,7 @@ export const usePokemonStore = create<PokemonState>((set, get) => ({
 
             let description = '';
             let genderRate = -1;
-            let evolutions: { name: string; level: number | null; imageUrl?: string }[] = [];
+            let evolutions: { name: string; level: number | null; imageUrl?: string; types?: string[] }[] = [];
 
             if (species) {
                 const entry = species.flavor_text_entries.find((e: any) => e.language.name === 'en');
@@ -193,16 +193,29 @@ export const usePokemonStore = create<PokemonState>((set, get) => ({
                 if (species.evolution_chain?.url) {
                     try {
                         const evoData = await fetchEvolutionChain(species.evolution_chain.url);
-                        const extractEvolutions = (node: any) => {
+                        const extractEvolutions = async (node: any) => {
                             const name = node.species.name;
                             const level = node.evolution_details?.[0]?.min_level || null;
                             const urlParts = node.species.url.split('/').filter(Boolean);
                             const id = urlParts[urlParts.length - 1];
                             const imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`;
-                            evolutions.push({ name, level, imageUrl });
-                            node.evolves_to.forEach((child: any) => extractEvolutions(child));
+
+                            // Fetch type for correct bgColor when navigating
+                            let types: string[] = [];
+                            try {
+                                // Use ID instead of name to avoid 404 for species with multiple forms (like Wormadam)
+                                const evoDetail = await fetchPokemonDetail(id);
+                                types = evoDetail.types.map((t: any) => t.type.name);
+                            } catch (e) {
+                                console.error(`Error fetching types for evolution ${name} (ID: ${id}):`, e);
+                            }
+
+                            evolutions.push({ name, level, imageUrl, types });
+                            for (const child of node.evolves_to) {
+                                await extractEvolutions(child);
+                            }
                         };
-                        extractEvolutions(evoData.chain);
+                        await extractEvolutions(evoData.chain);
                     } catch (e) { }
                 }
             }

@@ -26,15 +26,15 @@ export const FavoritesScreen = ({ navigation }: Props) => {
     }, [handlePress]);
 
     return (
-        <SafeAreaView className="flex-1 bg-white">
+        <SafeAreaView className="flex-1 bg-white dark:bg-black">
             <View className="px-5 pt-4 pb-4">
-                <Text className="text-3xl font-black text-[#111] mb-1">{t.favoritesTitle}</Text>
-                <Text className="text-base text-gray-500">{t.favoritesSubtitle}</Text>
+                <Text className="text-3xl font-black text-[#111] dark:text-white mb-1">{t.favoritesTitle}</Text>
+                <Text className="text-base text-gray-500 dark:text-gray-400">{t.favoritesSubtitle}</Text>
             </View>
 
             {favorites.length === 0 ? (
                 <View className="flex-1 justify-center items-center pb-20">
-                    <Text className="text-xl font-bold text-gray-400 text-center px-4">{t.emptyFavorites}</Text>
+                    <Text className="text-xl font-bold text-gray-400 dark:text-gray-500 text-center px-4">{t.emptyFavorites}</Text>
                 </View>
             ) : (
                 <FlatList

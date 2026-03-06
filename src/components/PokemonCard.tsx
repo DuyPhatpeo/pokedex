@@ -60,8 +60,8 @@ export const PokemonCard = memo(({ item, onPress, containerStyle }: Props) => {
             </View>
 
             <View className="flex-1 z-[2]">
-                <Text className="text-[15px] text-[#555] font-bold mb-1">{formattedId}</Text>
-                <Text className="text-[26px] font-black text-[#111] capitalize mb-[15px]" numberOfLines={1}>{detail.name}</Text>
+                <Text className="text-[15px] text-[#555] dark:text-gray-300 font-bold mb-1">{formattedId}</Text>
+                <Text className="text-[26px] font-black text-[#111] dark:text-white capitalize mb-[15px]" numberOfLines={1}>{detail.name}</Text>
                 <View className="flex-row flex-wrap gap-2">
                     {detail.types.map((t) => (
                         <View

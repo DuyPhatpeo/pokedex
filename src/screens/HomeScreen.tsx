@@ -3,6 +3,7 @@ import { View, FlatList, ActivityIndicator, Text, TextInput, TouchableOpacity, P
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useColorScheme } from 'nativewind';
 import { usePokemonStore } from '../store/usePokemonStore';
 import { PokemonCard } from '../components/PokemonCard';
 import { PokemonListItem } from '../types/pokemon';
@@ -21,6 +22,9 @@ interface Props {
 export const HomeScreen = ({ navigation }: Props) => {
     const insets = useSafeAreaInsets();
     const t = useTranslation();
+    const { colorScheme } = useColorScheme();
+    const isDark = colorScheme === 'dark';
+
     const {
         pokemonList, isLoading, isLoadingMore, loadPokemonList,
         searchQuery, setSearchQuery,
@@ -98,7 +102,7 @@ export const HomeScreen = ({ navigation }: Props) => {
 
     if (isLoading && pokemonList.length === 0) {
         return (
-            <View className="flex-1 justify-center items-center bg-white">
+            <View className="flex-1 justify-center items-center bg-white dark:bg-black">
                 <ActivityIndicator size="large" color="#e3350d" />
             </View>
         );
@@ -108,7 +112,7 @@ export const HomeScreen = ({ navigation }: Props) => {
     const activeSortLabel = SORT_OPTIONS.find(o => o.key === sortOption)?.label || t.sortIdAsc;
 
     return (
-        <SafeAreaView className="flex-1 bg-white">
+        <SafeAreaView className="flex-1 bg-white dark:bg-black">
             {/* ===== SORT MODAL ===== */}
             <Modal
                 visible={showSortModal}
@@ -118,29 +122,29 @@ export const HomeScreen = ({ navigation }: Props) => {
             >
                 <Pressable className="flex-1 justify-end bg-black/50" onPress={() => setShowSortModal(false)}>
                     <Pressable
-                        className="bg-white rounded-t-[28px] p-6 pb-0"
+                        className="bg-white dark:bg-[#1A1A1A] rounded-t-[28px] p-6 pb-0"
                         style={{ paddingBottom: insets.bottom + 100, marginBottom: -100 }}
                         onPress={() => { }}
                     >
                         {/* Handle bar */}
-                        <View className="w-10 h-1 rounded-full bg-gray-300 self-center mb-5" />
-                        <Text className="text-xl font-black text-[#111] mb-4">{t.sortTitle}</Text>
+                        <View className="w-10 h-1 rounded-full bg-gray-300 dark:bg-[#444] self-center mb-5" />
+                        <Text className="text-xl font-black text-[#111] dark:text-white mb-4">{t.sortTitle}</Text>
                         {SORT_OPTIONS.map(option => {
                             const isActive = sortOption === option.key;
                             return (
                                 <TouchableOpacity
                                     key={option.key}
-                                    className={`flex-row items-center py-3.5 px-4 rounded-2xl mb-2 ${isActive ? 'bg-[#303943]' : 'bg-[#f7f7f7]'}`}
+                                    className={`flex-row items-center py-3.5 px-4 rounded-2xl mb-2 ${isActive ? 'bg-[#303943] dark:bg-[#444]' : 'bg-[#f7f7f7] dark:bg-[#222]'}`}
                                     onPress={() => handleSelectSort(option.key)}
                                     activeOpacity={0.7}
                                 >
                                     <MaterialCommunityIcons
                                         name={option.icon as any}
                                         size={22}
-                                        color={isActive ? '#fff' : '#555'}
+                                        color={isActive ? '#fff' : (isDark ? '#d1d5db' : '#555')}
                                         style={{ marginRight: 12 }}
                                     />
-                                    <Text className={`text-base font-semibold ${isActive ? 'text-white' : 'text-[#333]'}`}>
+                                    <Text className={`text-base font-semibold ${isActive ? 'text-white' : 'text-[#333] dark:text-gray-200'}`}>
                                         {option.label}
                                     </Text>
                                     {isActive && (
@@ -157,25 +161,25 @@ export const HomeScreen = ({ navigation }: Props) => {
             <View className="px-4 pt-4 pb-2.5">
                 {/* Logo thay cho chữ Pokédex */}
                 <Image
-                    source={require('../../assets/Pokedex.png')}
+                    source={isDark ? require('../../assets/Pokedex-light.png') : require('../../assets/Pokedex.png')}
                     style={{ width: 110, height: 36, marginBottom: 12 }}
                     contentFit="contain"
                 />
                 <View className="flex-row items-center">
                     <View
-                        className="flex-row items-center bg-white rounded-full px-[15px] h-[50px] flex-1"
+                        className="flex-row items-center bg-white dark:bg-[#1A1A1A] rounded-full px-[15px] h-[50px] flex-1 border border-transparent dark:border-[#333]"
                         style={Platform.select({
                             ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 6 },
-                            android: { elevation: 4 },
-                            web: { boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)' } as any
+                            android: { elevation: isDark ? 0 : 4 },
+                            web: { boxShadow: isDark ? 'none' : '0 4px 12px rgba(0, 0, 0, 0.08)' } as any
                         })}
                     >
-                        <Ionicons name="search" size={20} color="#747476" style={{ marginRight: 10 }} />
+                        <Ionicons name="search" size={20} color={isDark ? '#9ca3af' : '#747476'} style={{ marginRight: 10 }} />
                         <TextInput
-                            className="flex-1 text-base text-[#303943]"
+                            className="flex-1 text-base text-[#303943] dark:text-gray-100"
                             style={Platform.OS === 'web' && { outlineStyle: 'none' } as any}
                             placeholder={t.searchPlaceholder}
-                            placeholderTextColor="#747476"
+                            placeholderTextColor={isDark ? '#9ca3af' : '#747476'}
                             value={localSearch}
                             onChangeText={setLocalSearch}
                             autoCapitalize="none"
@@ -183,24 +187,24 @@ export const HomeScreen = ({ navigation }: Props) => {
                         />
                         {localSearch.length > 0 && (
                             <TouchableOpacity onPress={handleClearSearch} className="p-1.5">
-                                <Ionicons name="close-circle" size={20} color="#b0b0b0" />
+                                <Ionicons name="close-circle" size={20} color={isDark ? '#6b7280' : '#b0b0b0'} />
                             </TouchableOpacity>
                         )}
                     </View>
 
                     {/* Nút Sort */}
-                    <TouchableOpacity onPress={() => setShowSortModal(true)} className="w-[50px] h-[50px] rounded-full bg-[#303943] justify-center items-center ml-2.5" activeOpacity={0.8}>
+                    <TouchableOpacity onPress={() => setShowSortModal(true)} className="w-[50px] h-[50px] rounded-full bg-[#303943] dark:bg-[#1A1A1A] justify-center items-center ml-2.5" activeOpacity={0.8}>
                         <MaterialCommunityIcons name="sort-variant" size={22} color="#fff" />
                     </TouchableOpacity>
                 </View>
 
                 {/* Active Sort Indicator */}
                 {sortOption !== 'id-asc' && (
-                    <View className="flex-row items-center mt-2.5 self-start bg-[#fff0ee] rounded-xl px-2.5 py-1 border border-[#e3350d22]">
-                        <Ionicons name="funnel" size={12} color="#e3350d" style={{ marginRight: 4 }} />
-                        <Text className="text-xs font-semibold text-[#e3350d]">{activeSortLabel}</Text>
+                    <View className="flex-row items-center mt-2.5 self-start bg-[#fff0ee] dark:bg-[#e3350d22] rounded-xl px-2.5 py-1 border border-[#e3350d22] dark:border-[#e3350d44]">
+                        <Ionicons name="funnel" size={12} color={isDark ? '#f87171' : '#e3350d'} style={{ marginRight: 4 }} />
+                        <Text className="text-xs font-semibold text-[#e3350d] dark:text-red-400">{activeSortLabel}</Text>
                         <TouchableOpacity onPress={() => setSortOption('id-asc')} className="ml-1.5">
-                            <Ionicons name="close-circle" size={14} color="#e3350d" />
+                            <Ionicons name="close-circle" size={14} color={isDark ? '#f87171' : '#e3350d'} />
                         </TouchableOpacity>
                     </View>
                 )}
@@ -219,12 +223,12 @@ export const HomeScreen = ({ navigation }: Props) => {
                         const isSelected = activeTypeFilter === null;
                         return (
                             <TouchableOpacity
-                                className={`px-3 py-2.5 rounded-[20px] justify-center items-center flex-row gap-1.5 ${isSelected ? 'bg-[#303943]' : 'bg-[#f0f0f0]'}`}
+                                className={`px-3 py-2.5 rounded-[20px] justify-center items-center flex-row gap-1.5 ${isSelected ? 'bg-[#303943] dark:bg-[#444]' : 'bg-[#f0f0f0] dark:bg-[#1A1A1A]'}`}
                                 onPress={() => setTypeFilter(null)}
                                 activeOpacity={0.7}
                             >
-                                <Ionicons name="apps" size={14} color={isSelected ? '#fff' : '#555'} />
-                                <Text className={`text-[13px] font-bold capitalize ${isSelected ? 'text-white' : 'text-[#555]'}`}>
+                                <Ionicons name="apps" size={14} color={isSelected ? '#fff' : (isDark ? '#d1d5db' : '#555')} />
+                                <Text className={`text-[13px] font-bold capitalize ${isSelected ? 'text-white' : 'text-[#555] dark:text-gray-300'}`}>
                                     All
                                 </Text>
                             </TouchableOpacity>
@@ -232,7 +236,7 @@ export const HomeScreen = ({ navigation }: Props) => {
                     }
                     const isSelected = activeTypeFilter === item;
                     const typeColor = getColorsByType(item);
-                    const bgColor = isSelected ? typeColor : hexToRgba(typeColor, 0.12);
+                    const bgColor = isSelected ? typeColor : (isDark ? hexToRgba(typeColor, 0.2) : hexToRgba(typeColor, 0.12));
                     const iconSource = TYPE_ICONS[item];
                     return (
                         <TouchableOpacity
@@ -246,7 +250,7 @@ export const HomeScreen = ({ navigation }: Props) => {
                                     <Image source={iconSource} style={{ width: 12, height: 12 }} contentFit="contain" />
                                 </View>
                             )}
-                            <Text className="text-[13px] font-bold capitalize" style={{ color: isSelected ? '#fff' : typeColor }}>
+                            <Text className="text-[13px] font-bold capitalize" style={{ color: isSelected ? '#fff' : (isDark ? '#fff' : typeColor) }}>
                                 {item}
                             </Text>
                         </TouchableOpacity>

@@ -1,18 +1,21 @@
 import React, { useEffect, useRef } from 'react';
-import { View, StyleSheet, Animated, Dimensions } from 'react-native';
+import { View, Animated, Dimensions } from 'react-native';
 import { Image } from 'expo-image';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
+import { useColorScheme } from 'nativewind';
 
 type Props = {
     navigation: NativeStackNavigationProp<RootStackParamList, 'Splash'>;
 };
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
 export const SplashScreen = ({ navigation }: Props) => {
     const opacity = useRef(new Animated.Value(0)).current;
     const scale = useRef(new Animated.Value(0.75)).current;
+    const { colorScheme } = useColorScheme();
+    const isDark = colorScheme === 'dark';
 
     useEffect(() => {
         // Fade + scale in animation
@@ -45,44 +48,21 @@ export const SplashScreen = ({ navigation }: Props) => {
     }, []);
 
     return (
-        <View style={styles.container}>
+        <View className="flex-1 bg-white dark:bg-black justify-center items-center">
             {/* Subtle Pokeball watermark in background */}
             <Image
-                source={require('../../assets/Pokedex.png')}
-                style={styles.bgWatermark}
+                source={isDark ? require('../../assets/Pokedex-light.png') : require('../../assets/Pokedex.png')}
+                style={{ position: 'absolute', width: width * 1.1, height: width * 1.1, opacity: isDark ? 0.08 : 0.04 }}
                 contentFit="contain"
             />
 
-            <Animated.View style={[styles.logoWrapper, { opacity, transform: [{ scale }] }]}>
+            <Animated.View style={[{ opacity, transform: [{ scale }] }]} className="items-center justify-center">
                 <Image
-                    source={require('../../assets/Pokedex.png')}
-                    style={styles.logo}
+                    source={isDark ? require('../../assets/Pokedex-light.png') : require('../../assets/Pokedex.png')}
+                    style={{ width: 220, height: 220 }}
                     contentFit="contain"
                 />
             </Animated.View>
         </View>
     );
 };
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#ffffff',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    bgWatermark: {
-        position: 'absolute',
-        width: width * 1.1,
-        height: width * 1.1,
-        opacity: 0.04,
-    },
-    logoWrapper: {
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    logo: {
-        width: 220,
-        height: 220,
-    },
-});

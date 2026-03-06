@@ -40,8 +40,8 @@ export const DetailScreen = ({ route, navigation }: Props) => {
         if (detail.genderRate === undefined || detail.genderRate === -1) {
             return (
                 <View className="flex-col w-full mb-9">
-                    <Text className="text-[14px] text-[#666] font-bold text-center mb-2.5">{t.gender}</Text>
-                    <Text className="text-center text-[#666] font-bold">Genderless</Text>
+                    <Text className="text-[14px] text-[#666] dark:text-gray-300 font-bold text-center mb-2.5">{t.gender}</Text>
+                    <Text className="text-center text-[#666] dark:text-gray-300 font-bold">Genderless</Text>
                 </View>
             );
         }
@@ -49,14 +49,14 @@ export const DetailScreen = ({ route, navigation }: Props) => {
         const maleRatio = 100 - femaleRatio;
         return (
             <View className="flex-col w-full mb-9">
-                <Text className="text-[14px] text-[#666] font-bold text-center mb-2.5">{t.gender}</Text>
+                <Text className="text-[14px] text-[#666] dark:text-gray-300 font-bold text-center mb-2.5">{t.gender}</Text>
                 <View className="flex-row h-2 rounded flex-1 overflow-hidden mb-2">
                     <View className="bg-blue-500 h-full" style={{ width: `${maleRatio}%` }} />
                     <View className="bg-pink-400 h-full" style={{ width: `${femaleRatio}%` }} />
                 </View>
                 <View className="flex-row justify-between">
-                    <Text className="text-[13px] text-[#444] font-bold">♂ {maleRatio.toString().replace('.', ',')}%</Text>
-                    <Text className="text-[13px] text-[#444] font-bold">♀ {femaleRatio.toString().replace('.', ',')}%</Text>
+                    <Text className="text-[13px] text-[#444] dark:text-gray-200 font-bold">♂ {maleRatio.toString().replace('.', ',')}%</Text>
+                    <Text className="text-[13px] text-[#444] dark:text-gray-200 font-bold">♀ {femaleRatio.toString().replace('.', ',')}%</Text>
                 </View>
             </View>
         );
@@ -129,53 +129,53 @@ export const DetailScreen = ({ route, navigation }: Props) => {
                 </View>
 
                 {/* BODY SECTION */}
-                <View className="bg-white rounded-t-[50px] px-[25px] pb-[60px] mt-0 z-[1] flex-1 min-h-[60%]">
+                <View className="bg-white dark:bg-black rounded-t-[50px] px-[25px] pb-[60px] mt-0 z-[1] flex-1 min-h-[60%]">
                     <View className="h-[90px]" />
 
                     {/* Description */}
                     {detail.description ? (
-                        <Text className="text-[15px] text-[#555] leading-[22px] text-justify mb-[30px]">{detail.description}</Text>
+                        <Text className="text-[15px] text-[#555] dark:text-gray-300 leading-[22px] text-justify mb-[30px]">{detail.description}</Text>
                     ) : null}
 
                     {/* Stats 2x2 Grid */}
                     <View className="flex-row flex-wrap gap-3 justify-between mb-6">
-                        <View className="w-[48%] border border-gray-200 rounded-[20px] py-[15px] px-5 bg-white">
+                        <View className="w-[48%] border border-gray-200 dark:border-[#333] rounded-[20px] py-[15px] px-5 bg-white dark:bg-[#1A1A1A]">
                             <View className="flex-row items-center gap-1.5 mb-2">
                                 <MaterialCommunityIcons name="weight" size={16} color="#999" />
-                                <Text className="text-[13px] text-[#999] font-bold uppercase">{t.weight}</Text>
+                                <Text className="text-[13px] text-[#999] dark:text-gray-400 font-bold uppercase">{t.weight}</Text>
                             </View>
                             <View className="items-center">
-                                <Text className="text-lg font-bold text-[#111] capitalize">{(detail.weight || 0) / 10} kg</Text>
+                                <Text className="text-lg font-bold text-[#111] dark:text-white capitalize">{(detail.weight || 0) / 10} kg</Text>
                             </View>
                         </View>
 
-                        <View className="w-[48%] border border-gray-200 rounded-[20px] py-[15px] px-5 bg-white">
+                        <View className="w-[48%] border border-gray-200 dark:border-[#333] rounded-[20px] py-[15px] px-5 bg-white dark:bg-[#1A1A1A]">
                             <View className="flex-row items-center gap-1.5 mb-2">
                                 <MaterialCommunityIcons name="format-line-spacing" size={16} color="#999" />
-                                <Text className="text-[13px] text-[#999] font-bold uppercase">{t.height}</Text>
+                                <Text className="text-[13px] text-[#999] dark:text-gray-400 font-bold uppercase">{t.height}</Text>
                             </View>
                             <View className="items-center">
-                                <Text className="text-lg font-bold text-[#111] capitalize">{(detail.height || 0) / 10} m</Text>
+                                <Text className="text-lg font-bold text-[#111] dark:text-white capitalize">{(detail.height || 0) / 10} m</Text>
                             </View>
                         </View>
 
-                        <View className="w-[48%] border border-gray-200 rounded-[20px] py-[15px] px-5 bg-white">
+                        <View className="w-[48%] border border-gray-200 dark:border-[#333] rounded-[20px] py-[15px] px-5 bg-white dark:bg-[#1A1A1A]">
                             <View className="flex-row items-center gap-1.5 mb-2">
                                 <MaterialCommunityIcons name="view-grid-outline" size={16} color="#999" />
-                                <Text className="text-[13px] text-[#999] font-bold uppercase">{t.category}</Text>
+                                <Text className="text-[13px] text-[#999] dark:text-gray-400 font-bold uppercase">{t.category}</Text>
                             </View>
                             <View className="items-center">
-                                <Text className="text-lg font-bold text-[#111] capitalize">{detail.types[0]?.type.name || 'Seed'}</Text>
+                                <Text className="text-lg font-bold text-[#111] dark:text-white capitalize">{detail.types[0]?.type.name || 'Seed'}</Text>
                             </View>
                         </View>
 
-                        <View className="w-[48%] border border-gray-200 rounded-[20px] py-[15px] px-5 bg-white">
+                        <View className="w-[48%] border border-gray-200 dark:border-[#333] rounded-[20px] py-[15px] px-5 bg-white dark:bg-[#1A1A1A]">
                             <View className="flex-row items-center gap-1.5 mb-2">
                                 <MaterialCommunityIcons name="pokeball" size={16} color="#999" />
-                                <Text className="text-[13px] text-[#999] font-bold uppercase">{t.abilities}</Text>
+                                <Text className="text-[13px] text-[#999] dark:text-gray-400 font-bold uppercase">{t.abilities}</Text>
                             </View>
                             <View className="items-center">
-                                <Text className="text-lg font-bold text-[#111] capitalize">{detail.abilities?.[0]?.ability.name.replace('-', ' ') || 'Overgrow'}</Text>
+                                <Text className="text-lg font-bold text-[#111] dark:text-white capitalize">{detail.abilities?.[0]?.ability.name.replace('-', ' ') || 'Overgrow'}</Text>
                             </View>
                         </View>
                     </View>
@@ -186,7 +186,7 @@ export const DetailScreen = ({ route, navigation }: Props) => {
                     {/* Weaknesses */}
                     {detail.weaknesses && detail.weaknesses.length > 0 && (
                         <>
-                            <Text className="text-xl font-black text-[#111] mb-[15px]">{t.weakness}</Text>
+                            <Text className="text-xl font-black text-[#111] dark:text-white mb-[15px]">{t.weakness}</Text>
                             <View className="flex-row flex-wrap gap-2.5 mb-9">
                                 {detail.weaknesses.map(w => {
                                     const wColor = getColorsByType(w);
@@ -208,8 +208,8 @@ export const DetailScreen = ({ route, navigation }: Props) => {
                     {/* Evolutions */}
                     {detail.evolutions && detail.evolutions.length > 0 && (
                         <>
-                            <Text className="text-xl font-black text-[#111] mb-[15px]">{t.evolution}</Text>
-                            <View className="border border-gray-200 rounded-[24px] p-5 bg-white">
+                            <Text className="text-xl font-black text-[#111] dark:text-white mb-[15px]">{t.evolution}</Text>
+                            <View className="border border-gray-200 dark:border-[#333] rounded-[24px] p-5 bg-white dark:bg-[#1A1A1A]">
                                 {detail.evolutions.map((evo, index) => {
                                     const mainBg = getColorsByType(detail.types?.[0]?.type.name || 'normal');
 
@@ -230,8 +230,8 @@ export const DetailScreen = ({ route, navigation }: Props) => {
                                                 </View>
 
                                                 <View className="flex-1">
-                                                    <Text className="text-lg font-bold text-[#111] capitalize mb-0.5">{evo.name}</Text>
-                                                    <Text className="text-[13px] text-[#666] font-bold mb-1.5">
+                                                    <Text className="text-lg font-bold text-[#111] dark:text-white capitalize mb-0.5">{evo.name}</Text>
+                                                    <Text className="text-[13px] text-[#666] dark:text-gray-400 font-bold mb-1.5">
                                                         {evo.imageUrl
                                                             ? `#${evo.imageUrl.split('/').filter(Boolean).pop()?.replace('.png', '').padStart(3, '0')}`
                                                             : '---'
@@ -252,9 +252,9 @@ export const DetailScreen = ({ route, navigation }: Props) => {
 
                                             {index < detail.evolutions!.length - 1 ? (
                                                 <View className="items-center my-2.5 ml-[25px]">
-                                                    <MaterialCommunityIcons name="arrow-down-bold" size={32} color="#1D4ED8" />
+                                                    <MaterialCommunityIcons name="arrow-down-bold" size={32} color="#3b82f6" />
                                                     {detail.evolutions![index + 1]?.level ? (
-                                                        <Text className="text-[14px] font-bold text-blue-700 mt-0.5">Lv. {detail.evolutions![index + 1].level}</Text>
+                                                        <Text className="text-[14px] font-bold text-blue-500 mt-0.5">Lv. {detail.evolutions![index + 1].level}</Text>
                                                     ) : null}
                                                 </View>
                                             ) : null}

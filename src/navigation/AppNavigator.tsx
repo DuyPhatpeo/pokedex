@@ -5,6 +5,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator, BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useColorScheme } from 'nativewind';
 
 import { HomeScreen } from '../screens/HomeScreen';
 import { DetailScreen } from '../screens/DetailScreen';
@@ -24,10 +25,15 @@ const TAB_ITEMS = [
 ] as const;
 
 const ACTIVE_COLOR = '#e3350d';
+const ACTIVE_COLOR_DARK = '#f87171';
 
 const CustomTabBar = ({ state, navigation }: BottomTabBarProps) => {
     const insets = useSafeAreaInsets();
     const t = useTranslation();
+    const { colorScheme } = useColorScheme();
+    const isDark = colorScheme === 'dark';
+
+    const currentActiveColor = isDark ? ACTIVE_COLOR_DARK : ACTIVE_COLOR;
 
     const getTabLabel = (name: string) => {
         if (name === 'Pokedex') return t.tabPokedex;
@@ -37,14 +43,28 @@ const CustomTabBar = ({ state, navigation }: BottomTabBarProps) => {
     }
 
     return (
-        <View style={[tabStyles.wrapper, { paddingBottom: insets.bottom }]}>
+        <View
+            className="flex-row bg-white dark:bg-black border-t border-[#eee] dark:border-[#222] pt-[10px]"
+            style={[
+                { paddingBottom: insets.bottom },
+                Platform.select({
+                    ios: {
+                        shadowColor: '#000',
+                        shadowOffset: { width: 0, height: -2 },
+                        shadowOpacity: isDark ? 0.2 : 0.05,
+                        shadowRadius: 6,
+                    },
+                    android: { elevation: isDark ? 0 : 8 },
+                })
+            ]}
+        >
             {TAB_ITEMS.map((tab, index) => {
                 const isFocused = state.index === index;
                 const onPress = () => {
                     if (!isFocused) navigation.navigate(tab.name as any);
                 };
 
-                const iconColor = isFocused ? ACTIVE_COLOR : '#999';
+                const iconColor = isFocused ? currentActiveColor : (isDark ? '#6b7280' : '#999');
                 const icon = tab.family === 'mci'
                     ? <MaterialCommunityIcons name={tab.activeIcon as any} size={24} color={iconColor} />
                     : <Ionicons
@@ -58,11 +78,13 @@ const CustomTabBar = ({ state, navigation }: BottomTabBarProps) => {
                         key={tab.name}
                         onPress={onPress}
                         activeOpacity={0.7}
-                        style={tabStyles.tabItem}
+                        className="flex-1 items-center justify-center pb-2 gap-[3px] min-h-[52px]"
                     >
                         {icon}
                         {isFocused && (
-                            <Text style={tabStyles.label}>{getTabLabel(tab.name)}</Text>
+                            <Text style={{ fontSize: 11, color: currentActiveColor, fontWeight: '600' }}>
+                                {getTabLabel(tab.name)}
+                            </Text>
                         )}
                     </TouchableOpacity>
                 );
@@ -70,38 +92,6 @@ const CustomTabBar = ({ state, navigation }: BottomTabBarProps) => {
         </View>
     );
 };
-
-const tabStyles = StyleSheet.create({
-    wrapper: {
-        flexDirection: 'row',
-        backgroundColor: '#fff',
-        borderTopWidth: 1,
-        borderTopColor: '#eee',
-        paddingTop: 10,
-        ...Platform.select({
-            ios: {
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: -2 },
-                shadowOpacity: 0.05,
-                shadowRadius: 6,
-            },
-            android: { elevation: 8 },
-        }),
-    },
-    tabItem: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingBottom: 8,
-        gap: 3,
-        minHeight: 52,
-    },
-    label: {
-        fontSize: 11,
-        color: ACTIVE_COLOR,
-        fontWeight: '600',
-    },
-});
 
 const MainTabs = () => {
     return (

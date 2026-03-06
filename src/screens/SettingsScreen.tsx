@@ -14,13 +14,13 @@ const ThemeSwitch = ({ isDark }: { isDark: boolean }) => {
     }));
 
     const trackStyle = useAnimatedStyle(() => ({
-        backgroundColor: withTiming(isDark ? '#60a5fa' : '#e5e7eb', { duration: 200 })
+        backgroundColor: withTiming(isDark ? '#333' : '#e5e7eb', { duration: 200 }) // dark border or background
     }));
 
     return (
-        <Animated.View className="w-[58px] h-[32px] rounded-full justify-center relative border border-gray-100" style={trackStyle}>
+        <Animated.View className="w-[58px] h-[32px] rounded-full justify-center relative border border-gray-100 dark:border-[#333]" style={trackStyle}>
             <Animated.View className="w-[24px] h-[24px] bg-white rounded-full shadow-sm absolute left-0 flex items-center justify-center" style={thumbStyle}>
-                <Ionicons name={isDark ? "moon" : "sunny"} size={14} color={isDark ? "#60a5fa" : "#f59e0b"} />
+                <Ionicons name={isDark ? "moon" : "sunny"} size={14} color={isDark ? "#3b82f6" : "#f59e0b"} />
             </Animated.View>
         </Animated.View>
     );
@@ -59,7 +59,7 @@ export const SettingsScreen = () => {
     };
 
     return (
-        <SafeAreaView className="flex-1 bg-white">
+        <SafeAreaView className="flex-1 bg-white dark:bg-black">
             {/* ===== LANGUAGE MODAL ===== */}
             <Modal
                 visible={showLanguageModal}
@@ -69,29 +69,29 @@ export const SettingsScreen = () => {
             >
                 <Pressable className="flex-1 justify-center items-center bg-black/50 px-5" onPress={() => setShowLanguageModal(false)}>
                     <Pressable
-                        className="bg-white rounded-[24px] w-full p-5 shadow-lg"
+                        className="bg-white dark:bg-[#1A1A1A] rounded-[24px] w-full p-5 shadow-lg"
                         onPress={() => { }}
                     >
-                        <Text className="text-xl font-black text-[#111] mb-4 text-center">{t.selectLanguage}</Text>
-                        <View className="bg-gray-100 rounded-2xl overflow-hidden">
+                        <Text className="text-xl font-black text-[#111] dark:text-white mb-4 text-center">{t.selectLanguage}</Text>
+                        <View className="bg-gray-100 dark:bg-[#222] rounded-2xl overflow-hidden">
                             {LANGUAGES.map((lang, index) => {
                                 const isSelected = selectedLanguage.code === lang.code;
                                 const isLast = index === LANGUAGES.length - 1;
                                 return (
                                     <TouchableOpacity
                                         key={lang.code}
-                                        className={`flex-row items-center justify-between py-4 px-5 bg-white mb-[1px] ${isLast ? '' : 'border-b border-gray-100'}`}
+                                        className={`flex-row items-center justify-between py-4 px-5 bg-white dark:bg-[#1A1A1A] mb-[1px] ${isLast ? '' : 'border-b border-gray-100 dark:border-[#333]'}`}
                                         onPress={() => {
                                             setLanguage(lang.code as LanguageCode);
                                             setShowLanguageModal(false);
                                         }}
                                         activeOpacity={0.7}
                                     >
-                                        <Text className={`text-base ${isSelected ? 'font-bold text-[#e3350d]' : 'font-medium text-[#333]'}`}>
+                                        <Text className={`text-base ${isSelected ? 'font-bold text-[#e3350d] dark:text-red-400' : 'font-medium text-[#333] dark:text-gray-200'}`}>
                                             {lang.label}
                                         </Text>
                                         {isSelected && (
-                                            <Ionicons name="checkmark-circle" size={22} color="#e3350d" />
+                                            <Ionicons name="checkmark-circle" size={22} color={colorScheme === 'dark' ? '#f87171' : '#e3350d'} />
                                         )}
                                     </TouchableOpacity>
                                 );
@@ -102,8 +102,8 @@ export const SettingsScreen = () => {
             </Modal>
 
             <View className="px-5 pt-4 pb-4">
-                <Text className="text-3xl font-black text-[#111] mb-1">{t.settingsTitle}</Text>
-                <Text className="text-base text-gray-500">{t.settingsSubtitle}</Text>
+                <Text className="text-3xl font-black text-[#111] dark:text-white mb-1">{t.settingsTitle}</Text>
+                <Text className="text-base text-gray-500 dark:text-gray-400">{t.settingsSubtitle}</Text>
             </View>
 
             <ScrollView className="flex-1 px-5" showsVerticalScrollIndicator={false}>
@@ -112,15 +112,15 @@ export const SettingsScreen = () => {
                     {t.preferences}
                 </Text>
 
-                <View className="bg-[#f7f7f7] rounded-2xl p-4 mb-6">
+                <View className="bg-[#f7f7f7] dark:bg-[#1A1A1A] rounded-2xl p-4 mb-6">
                     <TouchableOpacity
-                        className="flex-row items-center justify-between py-2 border-b border-gray-100 mb-2"
+                        className="flex-row items-center justify-between py-2 border-b border-gray-100 dark:border-[#333] mb-2"
                         onPress={() => setShowLanguageModal(true)}
                         activeOpacity={0.7}
                     >
                         <View className="flex-row items-center">
-                            <Ionicons name="language-outline" size={24} color="#555" />
-                            <Text className="text-base text-[#333] font-semibold ml-3">{t.language}</Text>
+                            <Ionicons name="language-outline" size={24} color={colorScheme === 'dark' ? '#9ca3af' : '#555'} />
+                            <Text className="text-base text-[#333] dark:text-gray-200 font-semibold ml-3">{t.language}</Text>
                         </View>
                         <View className="flex-row items-center gap-1">
                             <Text className="text-sm text-gray-400 font-medium">{selectedLanguage.label}</Text>
@@ -137,9 +137,9 @@ export const SettingsScreen = () => {
                             <Ionicons
                                 name="moon-outline"
                                 size={24}
-                                color="#555"
+                                color={colorScheme === 'dark' ? '#9ca3af' : '#555'}
                             />
-                            <Text className="text-base text-[#333] font-semibold ml-3">{t.darkMode}</Text>
+                            <Text className="text-base text-[#333] dark:text-gray-200 font-semibold ml-3">{t.darkMode}</Text>
                         </View>
                         <View className="flex-row items-center" pointerEvents="none">
                             <ThemeSwitch isDark={colorScheme === 'dark'} />
@@ -152,15 +152,15 @@ export const SettingsScreen = () => {
                     {t.dataManagement}
                 </Text>
 
-                <View className="bg-[#f7f7f7] rounded-2xl p-4 mb-6">
+                <View className="bg-[#f7f7f7] dark:bg-[#1A1A1A] rounded-2xl p-4 mb-6">
                     <TouchableOpacity
                         className="flex-row items-center justify-between py-2"
                         onPress={handleClearFavorites}
                         activeOpacity={0.7}
                     >
                         <View className="flex-row items-center">
-                            <Ionicons name="trash-outline" size={24} color="#ef4444" />
-                            <Text className="text-base text-red-500 font-semibold ml-3">{t.clearFavorites}</Text>
+                            <Ionicons name="trash-outline" size={24} color={colorScheme === 'dark' ? '#f87171' : '#ef4444'} />
+                            <Text className="text-base text-red-500 dark:text-red-400 font-semibold ml-3">{t.clearFavorites}</Text>
                         </View>
                         <Text className="text-xs text-gray-400 font-medium tracking-wide">
                             {favorites.length} {t.items}
@@ -173,11 +173,11 @@ export const SettingsScreen = () => {
                     {t.aboutSection}
                 </Text>
 
-                <View className="bg-[#f7f7f7] rounded-2xl p-4 mb-10">
+                <View className="bg-[#f7f7f7] dark:bg-[#1A1A1A] rounded-2xl p-4 mb-10">
                     <View className="flex-row items-center justify-between py-2">
                         <View className="flex-row items-center">
-                            <Ionicons name="information-circle-outline" size={24} color="#555" />
-                            <Text className="text-base text-[#333] font-semibold ml-3">{t.version}</Text>
+                            <Ionicons name="information-circle-outline" size={24} color={colorScheme === 'dark' ? '#9ca3af' : '#555'} />
+                            <Text className="text-base text-[#333] dark:text-gray-200 font-semibold ml-3">{t.version}</Text>
                         </View>
                         <Text className="text-sm text-gray-400 font-medium">1.0.0</Text>
                     </View>
@@ -186,4 +186,3 @@ export const SettingsScreen = () => {
         </SafeAreaView>
     );
 };
-

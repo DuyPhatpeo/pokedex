@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Platform, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
@@ -7,6 +7,7 @@ import { usePokemonStore } from '../store/usePokemonStore';
 import { useFavoritesStore } from '../store/useFavoritesStore';
 import { Image } from 'expo-image';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import Animated, { useSharedValue, useAnimatedStyle, withSpring, withTiming, withDelay } from 'react-native-reanimated';
 import { TYPE_ICONS, TYPE_OUTLINE_ICONS } from '../utils/typeIcons';
 import { getColorsByType, hexToRgba } from '../utils/colors';
 import { SkeletonDetailScreen } from '../components/Skeleton';
@@ -24,9 +25,34 @@ export const DetailScreen = ({ route, navigation }: Props) => {
     const isFavorite = favorites.includes(name);
     const t = useTranslation();
 
+    // Entrance animations
+    const bodyY = useSharedValue(60);
+    const bodyOpacity = useSharedValue(0);
+    const imageScale = useSharedValue(0.6);
+    const imageOpacity = useSharedValue(0);
+
     useEffect(() => {
         loadPokemonDetail(name);
     }, [name]);
+
+    useEffect(() => {
+        if (detail) {
+            bodyY.value = withSpring(0, { damping: 20, stiffness: 100 });
+            bodyOpacity.value = withTiming(1, { duration: 400 });
+            imageScale.value = withDelay(150, withSpring(1, { damping: 14, stiffness: 120 }));
+            imageOpacity.value = withDelay(150, withTiming(1, { duration: 300 }));
+        }
+    }, [detail]);
+
+    const bodyStyle = useAnimatedStyle(() => ({
+        opacity: bodyOpacity.value,
+        transform: [{ translateY: bodyY.value }],
+    }));
+
+    const imageStyle = useAnimatedStyle(() => ({
+        opacity: imageOpacity.value,
+        transform: [{ scale: imageScale.value }],
+    }));
 
     if (!detail || !detail.id) {
         return <SkeletonDetailScreen bgColor={bgColor} />;
@@ -118,18 +144,20 @@ export const DetailScreen = ({ route, navigation }: Props) => {
                     {/* Pokemon Avatar Container */}
                     <View className="items-center justify-center h-[160px] z-[10] -mb-[80px]">
                         {imageUrl ? (
-                            <Image
-                                source={{ uri: imageUrl }}
-                                style={{ width: 240, height: 240, zIndex: 10 }}
-                                contentFit="contain"
-                                transition={500}
-                            />
+                            <Animated.View style={imageStyle}>
+                                <Image
+                                    source={{ uri: imageUrl }}
+                                    style={{ width: 240, height: 240, zIndex: 10 }}
+                                    contentFit="contain"
+                                    transition={400}
+                                />
+                            </Animated.View>
                         ) : null}
                     </View>
                 </View>
 
                 {/* BODY SECTION */}
-                <View className="bg-white dark:bg-black rounded-t-[50px] px-[25px] pb-[60px] mt-0 z-[1] flex-1 min-h-[60%]">
+                <Animated.View className="bg-white dark:bg-black rounded-t-[50px] px-[25px] pb-[60px] mt-0 z-[1] flex-1 min-h-[60%]" style={bodyStyle}>
                     <View className="h-[90px]" />
 
                     {/* Description */}
@@ -264,7 +292,7 @@ export const DetailScreen = ({ route, navigation }: Props) => {
                             </View>
                         </>
                     )}
-                </View>
+                </Animated.View>
             </ScrollView>
         </View>
     );

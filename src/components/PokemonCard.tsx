@@ -1,6 +1,7 @@
 import React, { useEffect, memo } from 'react';
-import { View, Text, TouchableOpacity, Platform } from 'react-native';
+import { View, Text, Platform } from 'react-native';
 import { Image } from 'expo-image';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming, withDelay } from 'react-native-reanimated';
 import { usePokemonStore } from '../store/usePokemonStore';
 import { PokemonListItem } from '../types/pokemon';
 import { getColorsByType, hexToRgba } from '../utils/colors';
@@ -13,13 +14,39 @@ interface Props {
     containerStyle?: object;
 }
 
+const AnimatedPressable = Animated.createAnimatedComponent(
+    require('react-native').Pressable
+);
+
 export const PokemonCard = memo(({ item, onPress, containerStyle }: Props) => {
     const { pokemonDetails, loadPokemonDetail } = usePokemonStore();
     const detail = pokemonDetails[item.name];
 
+    // Entrance animation
+    const translateY = useSharedValue(30);
+    const opacity = useSharedValue(0);
+
+    // Press scale
+    const scale = useSharedValue(1);
+
     useEffect(() => {
         loadPokemonDetail(item.name);
     }, [item.name]);
+
+    useEffect(() => {
+        if (detail) {
+            translateY.value = withSpring(0, { damping: 18, stiffness: 120 });
+            opacity.value = withTiming(1, { duration: 300 });
+        }
+    }, [detail]);
+
+    const cardStyle = useAnimatedStyle(() => ({
+        opacity: opacity.value,
+        transform: [
+            { translateY: translateY.value },
+            { scale: scale.value },
+        ],
+    }));
 
     if (!detail) {
         return <SkeletonCard />;
@@ -27,13 +54,13 @@ export const PokemonCard = memo(({ item, onPress, containerStyle }: Props) => {
 
     const mainType = detail.types[0]?.type.name || 'normal';
     const bgColor = getColorsByType(mainType);
-    const lightBgColor = hexToRgba(bgColor, 0.15); // Nền màu nhạt 15% opacity
+    const lightBgColor = hexToRgba(bgColor, 0.15);
 
     const formattedId = `#${detail.id.toString().padStart(3, '0')}`;
     const imageUrl = detail.sprites.other?.['official-artwork']?.front_default || detail.sprites.front_default;
 
     return (
-        <TouchableOpacity
+        <AnimatedPressable
             className="rounded-[28px] my-[10px] mx-[15px] h-[140px] flex-row items-center pl-[20px] overflow-hidden relative border-[1.5px]"
             style={[
                 {
@@ -41,9 +68,11 @@ export const PokemonCard = memo(({ item, onPress, containerStyle }: Props) => {
                     borderColor: hexToRgba(bgColor, 0.5),
                 },
                 containerStyle,
-            ] as any}
+                cardStyle,
+            ]}
             onPress={() => onPress(item.name, bgColor)}
-            activeOpacity={0.9}
+            onPressIn={() => { scale.value = withSpring(0.97, { damping: 15 }); }}
+            onPressOut={() => { scale.value = withSpring(1, { damping: 15 }); }}
         >
             {/* Right dark background shape */}
             <View
@@ -88,6 +117,6 @@ export const PokemonCard = memo(({ item, onPress, containerStyle }: Props) => {
                     transition={500}
                 />
             </View>
-        </TouchableOpacity>
+        </AnimatedPressable>
     );
 });

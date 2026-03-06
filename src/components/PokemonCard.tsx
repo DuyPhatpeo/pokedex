@@ -10,9 +10,10 @@ import { SkeletonCard } from './Skeleton';
 interface Props {
     item: PokemonListItem;
     onPress: (name: string, bgColor: string) => void;
+    containerStyle?: object;
 }
 
-export const PokemonCard = memo(({ item, onPress }: Props) => {
+export const PokemonCard = memo(({ item, onPress, containerStyle }: Props) => {
     const { pokemonDetails, loadPokemonDetail } = usePokemonStore();
     const detail = pokemonDetails[item.name];
 
@@ -34,10 +35,13 @@ export const PokemonCard = memo(({ item, onPress }: Props) => {
     return (
         <TouchableOpacity
             className="rounded-[28px] my-[10px] mx-[15px] h-[140px] flex-row items-center pl-[20px] overflow-hidden relative border-[1.5px]"
-            style={{
-                backgroundColor: lightBgColor,
-                borderColor: hexToRgba(bgColor, 0.5),
-            }}
+            style={[
+                {
+                    backgroundColor: lightBgColor,
+                    borderColor: hexToRgba(bgColor, 0.5),
+                },
+                containerStyle,
+            ] as any}
             onPress={() => onPress(item.name, bgColor)}
             activeOpacity={0.9}
         >

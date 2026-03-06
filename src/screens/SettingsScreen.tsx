@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Alert, Modal, Pressable } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Alert, Modal, Pressable, Switch } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useColorScheme } from 'nativewind';
 import { useFavoritesStore } from '../store/useFavoritesStore';
 import { useSettingsStore, LanguageCode } from '../store/useSettingsStore';
 import { LANGUAGES, useTranslation } from '../i18n/translations';
@@ -9,6 +10,7 @@ import { LANGUAGES, useTranslation } from '../i18n/translations';
 export const SettingsScreen = () => {
     const { favorites, clearFavorites } = useFavoritesStore();
     const { language, setLanguage } = useSettingsStore();
+    const { colorScheme, toggleColorScheme } = useColorScheme();
     const t = useTranslation();
 
     const [showLanguageModal, setShowLanguageModal] = useState(false);
@@ -112,7 +114,17 @@ export const SettingsScreen = () => {
                             <Ionicons name="color-palette-outline" size={24} color="#555" />
                             <Text className="text-base text-[#333] font-semibold ml-3">{t.theme}</Text>
                         </View>
-                        <Text className="text-sm text-gray-400 font-medium">{t.themeLight}</Text>
+                        <View className="flex-row items-center gap-2">
+                            <Text className="text-sm text-gray-400 font-medium">
+                                {colorScheme === 'dark' ? t.themeDark : t.themeLight}
+                            </Text>
+                            <Switch
+                                value={colorScheme === 'dark'}
+                                onValueChange={toggleColorScheme}
+                                trackColor={{ false: '#d1d5db', true: '#ef4444' }}
+                                thumbColor={'#ffffff'}
+                            />
+                        </View>
                     </View>
                 </View>
 

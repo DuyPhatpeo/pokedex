@@ -5,6 +5,7 @@ import { useFavoritesStore } from '../store/useFavoritesStore';
 import { SwipeablePokemonCard } from '../components/SwipeablePokemonCard';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
+import { useTranslation } from '../i18n/translations';
 
 type FavoritesScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -14,6 +15,7 @@ interface Props {
 
 export const FavoritesScreen = ({ navigation }: Props) => {
     const { favorites } = useFavoritesStore();
+    const t = useTranslation();
 
     const handlePress = useCallback((name: string, bgColor: string) => {
         navigation.navigate('Detail', { name, bgColor });
@@ -26,13 +28,13 @@ export const FavoritesScreen = ({ navigation }: Props) => {
     return (
         <SafeAreaView className="flex-1 bg-white">
             <View className="px-5 pt-4 pb-4">
-                <Text className="text-3xl font-black text-[#111] mb-1">Favorites</Text>
-                <Text className="text-base text-gray-500">Your favorite Pokémon list.</Text>
+                <Text className="text-3xl font-black text-[#111] mb-1">{t.favoritesTitle}</Text>
+                <Text className="text-base text-gray-500">{t.favoritesSubtitle}</Text>
             </View>
 
             {favorites.length === 0 ? (
                 <View className="flex-1 justify-center items-center pb-20">
-                    <Text className="text-xl font-bold text-gray-400">No Pokémon added yet</Text>
+                    <Text className="text-xl font-bold text-gray-400 text-center px-4">{t.emptyFavorites}</Text>
                 </View>
             ) : (
                 <FlatList

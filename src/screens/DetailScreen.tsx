@@ -10,6 +10,7 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { TYPE_ICONS, TYPE_OUTLINE_ICONS } from '../utils/typeIcons';
 import { getColorsByType, hexToRgba } from '../utils/colors';
 import { SkeletonDetailScreen } from '../components/Skeleton';
+import { useTranslation } from '../i18n/translations';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Detail'>;
 
@@ -19,9 +20,9 @@ export const DetailScreen = ({ route, navigation }: Props) => {
     const { pokemonDetails, loadPokemonDetail } = usePokemonStore();
     const detail = pokemonDetails[name];
 
-    // Favorites
     const { favorites, toggleFavorite } = useFavoritesStore();
     const isFavorite = favorites.includes(name);
+    const t = useTranslation();
 
     useEffect(() => {
         loadPokemonDetail(name);
@@ -39,7 +40,7 @@ export const DetailScreen = ({ route, navigation }: Props) => {
         if (detail.genderRate === undefined || detail.genderRate === -1) {
             return (
                 <View className="flex-col w-full mb-9">
-                    <Text className="text-[14px] text-[#666] font-bold text-center mb-2.5">GENDER</Text>
+                    <Text className="text-[14px] text-[#666] font-bold text-center mb-2.5">{t.gender}</Text>
                     <Text className="text-center text-[#666] font-bold">Genderless</Text>
                 </View>
             );
@@ -48,7 +49,7 @@ export const DetailScreen = ({ route, navigation }: Props) => {
         const maleRatio = 100 - femaleRatio;
         return (
             <View className="flex-col w-full mb-9">
-                <Text className="text-[14px] text-[#666] font-bold text-center mb-2.5">GENDER</Text>
+                <Text className="text-[14px] text-[#666] font-bold text-center mb-2.5">{t.gender}</Text>
                 <View className="flex-row h-2 rounded flex-1 overflow-hidden mb-2">
                     <View className="bg-blue-500 h-full" style={{ width: `${maleRatio}%` }} />
                     <View className="bg-pink-400 h-full" style={{ width: `${femaleRatio}%` }} />
@@ -141,7 +142,7 @@ export const DetailScreen = ({ route, navigation }: Props) => {
                         <View className="w-[48%] border border-gray-200 rounded-[20px] py-[15px] px-5 bg-white">
                             <View className="flex-row items-center gap-1.5 mb-2">
                                 <MaterialCommunityIcons name="weight" size={16} color="#999" />
-                                <Text className="text-[13px] text-[#999] font-bold">WEIGHT</Text>
+                                <Text className="text-[13px] text-[#999] font-bold uppercase">{t.weight}</Text>
                             </View>
                             <View className="items-center">
                                 <Text className="text-lg font-bold text-[#111] capitalize">{(detail.weight || 0) / 10} kg</Text>
@@ -151,7 +152,7 @@ export const DetailScreen = ({ route, navigation }: Props) => {
                         <View className="w-[48%] border border-gray-200 rounded-[20px] py-[15px] px-5 bg-white">
                             <View className="flex-row items-center gap-1.5 mb-2">
                                 <MaterialCommunityIcons name="format-line-spacing" size={16} color="#999" />
-                                <Text className="text-[13px] text-[#999] font-bold">HEIGHT</Text>
+                                <Text className="text-[13px] text-[#999] font-bold uppercase">{t.height}</Text>
                             </View>
                             <View className="items-center">
                                 <Text className="text-lg font-bold text-[#111] capitalize">{(detail.height || 0) / 10} m</Text>
@@ -161,7 +162,7 @@ export const DetailScreen = ({ route, navigation }: Props) => {
                         <View className="w-[48%] border border-gray-200 rounded-[20px] py-[15px] px-5 bg-white">
                             <View className="flex-row items-center gap-1.5 mb-2">
                                 <MaterialCommunityIcons name="view-grid-outline" size={16} color="#999" />
-                                <Text className="text-[13px] text-[#999] font-bold">CATEGORY</Text>
+                                <Text className="text-[13px] text-[#999] font-bold uppercase">{t.category}</Text>
                             </View>
                             <View className="items-center">
                                 <Text className="text-lg font-bold text-[#111] capitalize">{detail.types[0]?.type.name || 'Seed'}</Text>
@@ -171,7 +172,7 @@ export const DetailScreen = ({ route, navigation }: Props) => {
                         <View className="w-[48%] border border-gray-200 rounded-[20px] py-[15px] px-5 bg-white">
                             <View className="flex-row items-center gap-1.5 mb-2">
                                 <MaterialCommunityIcons name="pokeball" size={16} color="#999" />
-                                <Text className="text-[13px] text-[#999] font-bold">ABILITY</Text>
+                                <Text className="text-[13px] text-[#999] font-bold uppercase">{t.abilities}</Text>
                             </View>
                             <View className="items-center">
                                 <Text className="text-lg font-bold text-[#111] capitalize">{detail.abilities?.[0]?.ability.name.replace('-', ' ') || 'Overgrow'}</Text>
@@ -185,7 +186,7 @@ export const DetailScreen = ({ route, navigation }: Props) => {
                     {/* Weaknesses */}
                     {detail.weaknesses && detail.weaknesses.length > 0 && (
                         <>
-                            <Text className="text-xl font-black text-[#111] mb-[15px]">Weaknesses</Text>
+                            <Text className="text-xl font-black text-[#111] mb-[15px]">{t.weakness}</Text>
                             <View className="flex-row flex-wrap gap-2.5 mb-9">
                                 {detail.weaknesses.map(w => {
                                     const wColor = getColorsByType(w);
@@ -207,7 +208,7 @@ export const DetailScreen = ({ route, navigation }: Props) => {
                     {/* Evolutions */}
                     {detail.evolutions && detail.evolutions.length > 0 && (
                         <>
-                            <Text className="text-xl font-black text-[#111] mb-[15px]">Evolutions</Text>
+                            <Text className="text-xl font-black text-[#111] mb-[15px]">{t.evolution}</Text>
                             <View className="border border-gray-200 rounded-[24px] p-5 bg-white">
                                 {detail.evolutions.map((evo, index) => {
                                     const mainBg = getColorsByType(detail.types?.[0]?.type.name || 'normal');

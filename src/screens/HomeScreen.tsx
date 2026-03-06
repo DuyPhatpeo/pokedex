@@ -10,6 +10,7 @@ import { TYPE_ICONS } from '../utils/typeIcons';
 import { getColorsByType, hexToRgba } from '../utils/colors';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
+import { useTranslation } from '../i18n/translations';
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -17,21 +18,22 @@ interface Props {
     navigation: HomeScreenNavigationProp;
 }
 
-const SORT_OPTIONS = [
-    { key: 'id-asc', label: 'ID Ascending', icon: 'sort-numeric-ascending' },
-    { key: 'id-desc', label: 'ID Descending', icon: 'sort-numeric-descending' },
-    { key: 'name-asc', label: 'Name A → Z', icon: 'sort-alphabetical-ascending' },
-    { key: 'name-desc', label: 'Name Z → A', icon: 'sort-alphabetical-descending' },
-];
-
 export const HomeScreen = ({ navigation }: Props) => {
     const insets = useSafeAreaInsets();
+    const t = useTranslation();
     const {
         pokemonList, isLoading, isLoadingMore, loadPokemonList,
         searchQuery, setSearchQuery,
         activeTypeFilter, setTypeFilter,
         sortOption, setSortOption
     } = usePokemonStore();
+
+    const SORT_OPTIONS = [
+        { key: 'id-asc', label: t.sortIdAsc, icon: 'sort-numeric-ascending' },
+        { key: 'id-desc', label: t.sortIdDesc, icon: 'sort-numeric-descending' },
+        { key: 'name-asc', label: t.sortNameAsc, icon: 'sort-alphabetical-ascending' },
+        { key: 'name-desc', label: t.sortNameDesc, icon: 'sort-alphabetical-descending' },
+    ];
 
     const flatListRef = useRef<FlatList>(null);
 
@@ -103,7 +105,7 @@ export const HomeScreen = ({ navigation }: Props) => {
     }
 
     const POKEMON_TYPES = Object.keys(TYPE_ICONS).filter(t => t !== 'unknown' && t !== 'shadow');
-    const activeSortLabel = SORT_OPTIONS.find(o => o.key === sortOption)?.label || 'ID Ascending';
+    const activeSortLabel = SORT_OPTIONS.find(o => o.key === sortOption)?.label || t.sortIdAsc;
 
     return (
         <SafeAreaView className="flex-1 bg-white">
@@ -122,7 +124,7 @@ export const HomeScreen = ({ navigation }: Props) => {
                     >
                         {/* Handle bar */}
                         <View className="w-10 h-1 rounded-full bg-gray-300 self-center mb-5" />
-                        <Text className="text-xl font-black text-[#111] mb-4">Sort Pokémon</Text>
+                        <Text className="text-xl font-black text-[#111] mb-4">{t.sortTitle}</Text>
                         {SORT_OPTIONS.map(option => {
                             const isActive = sortOption === option.key;
                             return (
@@ -172,7 +174,7 @@ export const HomeScreen = ({ navigation }: Props) => {
                         <TextInput
                             className="flex-1 text-base text-[#303943]"
                             style={Platform.OS === 'web' && { outlineStyle: 'none' } as any}
-                            placeholder="Search Pokemon..."
+                            placeholder={t.searchPlaceholder}
                             placeholderTextColor="#747476"
                             value={localSearch}
                             onChangeText={setLocalSearch}

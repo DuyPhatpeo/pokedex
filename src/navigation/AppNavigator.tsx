@@ -12,20 +12,29 @@ import { SplashScreen } from '../screens/SplashScreen';
 import { FavoritesScreen } from '../screens/FavoritesScreen';
 import { SettingsScreen } from '../screens/SettingsScreen';
 import { RootStackParamList, MainTabParamList } from './types';
+import { useTranslation } from '../i18n/translations';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
 const TAB_ITEMS = [
-    { name: 'Pokedex', label: 'Pokédex', activeIcon: 'pokeball', inactiveIcon: 'pokeball', family: 'mci' },
-    { name: 'Favorites', label: 'Favorites', activeIcon: 'heart', inactiveIcon: 'heart-outline', family: 'ion' },
-    { name: 'Settings', label: 'Settings', activeIcon: 'settings', inactiveIcon: 'settings-outline', family: 'ion' },
+    { name: 'Pokedex', activeIcon: 'pokeball', inactiveIcon: 'pokeball', family: 'mci' },
+    { name: 'Favorites', activeIcon: 'heart', inactiveIcon: 'heart-outline', family: 'ion' },
+    { name: 'Settings', activeIcon: 'settings', inactiveIcon: 'settings-outline', family: 'ion' },
 ] as const;
 
 const ACTIVE_COLOR = '#e3350d';
 
 const CustomTabBar = ({ state, navigation }: BottomTabBarProps) => {
     const insets = useSafeAreaInsets();
+    const t = useTranslation();
+
+    const getTabLabel = (name: string) => {
+        if (name === 'Pokedex') return t.tabPokedex;
+        if (name === 'Favorites') return t.tabFavorites;
+        if (name === 'Settings') return t.tabSettings;
+        return name;
+    }
 
     return (
         <View style={[tabStyles.wrapper, { paddingBottom: insets.bottom }]}>
@@ -53,7 +62,7 @@ const CustomTabBar = ({ state, navigation }: BottomTabBarProps) => {
                     >
                         {icon}
                         {isFocused && (
-                            <Text style={tabStyles.label}>{tab.label}</Text>
+                            <Text style={tabStyles.label}>{getTabLabel(tab.name)}</Text>
                         )}
                     </TouchableOpacity>
                 );

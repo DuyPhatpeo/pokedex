@@ -3,38 +3,34 @@ import { View, Text, TouchableOpacity, ScrollView, Alert, Modal, Pressable } fro
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useFavoritesStore } from '../store/useFavoritesStore';
-
-const LANGUAGES = [
-    { code: 'en', label: 'English' },
-    { code: 'vi', label: 'Tiếng Việt' },
-    { code: 'ja', label: '日本語' },
-    { code: 'zh', label: '中文' },
-    { code: 'es', label: 'Español' },
-    { code: 'fr', label: 'Français' },
-];
+import { useSettingsStore, LanguageCode } from '../store/useSettingsStore';
+import { LANGUAGES, useTranslation } from '../i18n/translations';
 
 export const SettingsScreen = () => {
     const { favorites, clearFavorites } = useFavoritesStore();
-    const [selectedLanguage, setSelectedLanguage] = useState(LANGUAGES[0]);
+    const { language, setLanguage } = useSettingsStore();
+    const t = useTranslation();
+
     const [showLanguageModal, setShowLanguageModal] = useState(false);
+    const selectedLanguage = LANGUAGES.find((lang) => lang.code === language) || LANGUAGES[0];
 
     const handleClearFavorites = () => {
         if (favorites.length === 0) {
-            Alert.alert('Notice', 'Your favorites list is already empty.');
+            Alert.alert(t.notice, t.emptyList);
             return;
         }
 
         Alert.alert(
-            'Clear Favorites',
-            'Are you sure you want to remove all Pokémon from your favorites?',
+            t.clearTitle,
+            t.clearMessage,
             [
-                { text: 'Cancel', style: 'cancel' },
+                { text: t.cancel, style: 'cancel' },
                 {
-                    text: 'Clear All',
+                    text: t.clearAll,
                     style: 'destructive',
                     onPress: () => {
                         clearFavorites();
-                        Alert.alert('Success', 'All favorites have been removed.');
+                        Alert.alert(t.success, t.successMsg);
                     },
                 },
             ]
@@ -55,7 +51,7 @@ export const SettingsScreen = () => {
                         className="bg-white rounded-[24px] w-full p-5 shadow-lg"
                         onPress={() => { }}
                     >
-                        <Text className="text-xl font-black text-[#111] mb-4 text-center">Select Language</Text>
+                        <Text className="text-xl font-black text-[#111] mb-4 text-center">{t.selectLanguage}</Text>
                         <View className="bg-gray-100 rounded-2xl overflow-hidden">
                             {LANGUAGES.map((lang, index) => {
                                 const isSelected = selectedLanguage.code === lang.code;
@@ -65,7 +61,7 @@ export const SettingsScreen = () => {
                                         key={lang.code}
                                         className={`flex-row items-center justify-between py-4 px-5 bg-white mb-[1px] ${isLast ? '' : 'border-b border-gray-100'}`}
                                         onPress={() => {
-                                            setSelectedLanguage(lang);
+                                            setLanguage(lang.code as LanguageCode);
                                             setShowLanguageModal(false);
                                         }}
                                         activeOpacity={0.7}
@@ -85,14 +81,14 @@ export const SettingsScreen = () => {
             </Modal>
 
             <View className="px-5 pt-4 pb-4">
-                <Text className="text-3xl font-black text-[#111] mb-1">Settings</Text>
-                <Text className="text-base text-gray-500">Preferences and App Info.</Text>
+                <Text className="text-3xl font-black text-[#111] mb-1">{t.settingsTitle}</Text>
+                <Text className="text-base text-gray-500">{t.settingsSubtitle}</Text>
             </View>
 
             <ScrollView className="flex-1 px-5" showsVerticalScrollIndicator={false}>
                 {/* PREFERENCES SECTION */}
                 <Text className="text-sm font-bold text-gray-400 uppercase tracking-widest mt-4 mb-2 ml-1">
-                    Preferences
+                    {t.preferences}
                 </Text>
 
                 <View className="bg-[#f7f7f7] rounded-2xl p-4 mb-6">
@@ -103,7 +99,7 @@ export const SettingsScreen = () => {
                     >
                         <View className="flex-row items-center">
                             <Ionicons name="language-outline" size={24} color="#555" />
-                            <Text className="text-base text-[#333] font-semibold ml-3">Language</Text>
+                            <Text className="text-base text-[#333] font-semibold ml-3">{t.language}</Text>
                         </View>
                         <View className="flex-row items-center gap-1">
                             <Text className="text-sm text-gray-400 font-medium">{selectedLanguage.label}</Text>
@@ -114,15 +110,15 @@ export const SettingsScreen = () => {
                     <View className="flex-row items-center justify-between py-2 mt-2">
                         <View className="flex-row items-center">
                             <Ionicons name="color-palette-outline" size={24} color="#555" />
-                            <Text className="text-base text-[#333] font-semibold ml-3">App Theme</Text>
+                            <Text className="text-base text-[#333] font-semibold ml-3">{t.theme}</Text>
                         </View>
-                        <Text className="text-sm text-gray-400 font-medium">Light (Default)</Text>
+                        <Text className="text-sm text-gray-400 font-medium">{t.themeLight}</Text>
                     </View>
                 </View>
 
                 {/* DATA MANAGEMENT SECTION */}
                 <Text className="text-sm font-bold text-gray-400 uppercase tracking-widest mt-2 mb-2 ml-1">
-                    Data Management
+                    {t.dataManagement}
                 </Text>
 
                 <View className="bg-[#f7f7f7] rounded-2xl p-4 mb-6">
@@ -133,24 +129,24 @@ export const SettingsScreen = () => {
                     >
                         <View className="flex-row items-center">
                             <Ionicons name="trash-outline" size={24} color="#ef4444" />
-                            <Text className="text-base text-red-500 font-semibold ml-3">Clear All Favorites</Text>
+                            <Text className="text-base text-red-500 font-semibold ml-3">{t.clearFavorites}</Text>
                         </View>
                         <Text className="text-xs text-gray-400 font-medium tracking-wide">
-                            {favorites.length} items
+                            {favorites.length} {t.items}
                         </Text>
                     </TouchableOpacity>
                 </View>
 
                 {/* ABOUT SECTION */}
                 <Text className="text-sm font-bold text-gray-400 uppercase tracking-widest mt-2 mb-2 ml-1">
-                    About
+                    {t.aboutSection}
                 </Text>
 
                 <View className="bg-[#f7f7f7] rounded-2xl p-4 mb-10">
                     <View className="flex-row items-center justify-between py-2">
                         <View className="flex-row items-center">
                             <Ionicons name="information-circle-outline" size={24} color="#555" />
-                            <Text className="text-base text-[#333] font-semibold ml-3">Version</Text>
+                            <Text className="text-base text-[#333] font-semibold ml-3">{t.version}</Text>
                         </View>
                         <Text className="text-sm text-gray-400 font-medium">1.0.0</Text>
                     </View>
@@ -159,3 +155,4 @@ export const SettingsScreen = () => {
         </SafeAreaView>
     );
 };
+

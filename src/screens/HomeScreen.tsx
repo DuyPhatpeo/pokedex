@@ -28,7 +28,7 @@ export const HomeScreen = ({ navigation }: Props) => {
     const {
         pokemonList, isLoading, isLoadingMore, loadPokemonList,
         searchQuery, setSearchQuery,
-        activeTypeFilter, setTypeFilter,
+        activeTypeFilter, toggleTypeFilter, clearTypeFilter, setTypeFilter,
         sortOption, setSortOption
     } = usePokemonStore();
 
@@ -71,11 +71,7 @@ export const HomeScreen = ({ navigation }: Props) => {
     }, [searchQuery, activeTypeFilter, sortOption]);
 
     const handleTypePress = (type: string) => {
-        if (activeTypeFilter === type) {
-            setTypeFilter(null);
-        } else {
-            setTypeFilter(type);
-        }
+        toggleTypeFilter(type);
     };
 
     const handleSelectSort = (key: string) => {
@@ -198,14 +194,31 @@ export const HomeScreen = ({ navigation }: Props) => {
                     </TouchableOpacity>
                 </View>
 
-                {/* Active Sort Indicator */}
-                {sortOption !== 'id-asc' && (
-                    <View className="flex-row items-center mt-2.5 self-start bg-[#fff0ee] dark:bg-[#e3350d22] rounded-xl px-2.5 py-1 border border-[#e3350d22] dark:border-[#e3350d44]">
-                        <Ionicons name="funnel" size={12} color={isDark ? '#f87171' : '#e3350d'} style={{ marginRight: 4 }} />
-                        <Text className="text-xs font-semibold text-[#e3350d] dark:text-red-400">{activeSortLabel}</Text>
-                        <TouchableOpacity onPress={() => setSortOption('id-asc')} className="ml-1.5">
-                            <Ionicons name="close-circle" size={14} color={isDark ? '#f87171' : '#e3350d'} />
-                        </TouchableOpacity>
+                {/* Active filters row */}
+                {(sortOption !== 'id-asc' || activeTypeFilter.length > 0) && (
+                    <View className="flex-row flex-wrap items-center mt-2.5 gap-2">
+                        {sortOption !== 'id-asc' && (
+                            <View className="flex-row items-center bg-[#fff0ee] dark:bg-[#e3350d22] rounded-xl px-2.5 py-1 border border-[#e3350d22] dark:border-[#e3350d44]">
+                                <Ionicons name="funnel" size={12} color={isDark ? '#f87171' : '#e3350d'} style={{ marginRight: 4 }} />
+                                <Text className="text-xs font-semibold text-[#e3350d] dark:text-red-400">{activeSortLabel}</Text>
+                                <TouchableOpacity onPress={() => setSortOption('id-asc')} className="ml-1.5">
+                                    <Ionicons name="close-circle" size={14} color={isDark ? '#f87171' : '#e3350d'} />
+                                </TouchableOpacity>
+                            </View>
+                        )}
+                        {activeTypeFilter.map(type => (
+                            <View key={type} className="flex-row items-center rounded-xl px-2.5 py-1 border" style={{ backgroundColor: hexToRgba(getColorsByType(type), 0.15), borderColor: hexToRgba(getColorsByType(type), 0.4) }}>
+                                <Text className="text-xs font-bold capitalize" style={{ color: getColorsByType(type) }}>{type}</Text>
+                                <TouchableOpacity onPress={() => toggleTypeFilter(type)} className="ml-1.5">
+                                    <Ionicons name="close-circle" size={14} color={getColorsByType(type)} />
+                                </TouchableOpacity>
+                            </View>
+                        ))}
+                        {activeTypeFilter.length > 1 && (
+                            <TouchableOpacity onPress={clearTypeFilter} className="flex-row items-center bg-gray-100 dark:bg-[#222] rounded-xl px-2.5 py-1">
+                                <Text className="text-xs font-bold text-gray-500 dark:text-gray-400">Clear all</Text>
+                            </TouchableOpacity>
+                        )}
                     </View>
                 )}
             </View>
@@ -220,11 +233,11 @@ export const HomeScreen = ({ navigation }: Props) => {
                 contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 6, gap: 8 }}
                 renderItem={({ item }) => {
                     if (item === 'all') {
-                        const isSelected = activeTypeFilter === null;
+                        const isSelected = activeTypeFilter.length === 0;
                         return (
                             <TouchableOpacity
                                 className={`px-3 py-2.5 rounded-[20px] justify-center items-center flex-row gap-1.5 ${isSelected ? 'bg-[#303943] dark:bg-[#444]' : 'bg-[#f0f0f0] dark:bg-[#1A1A1A]'}`}
-                                onPress={() => setTypeFilter(null)}
+                                onPress={clearTypeFilter}
                                 activeOpacity={0.7}
                             >
                                 <Ionicons name="apps" size={14} color={isSelected ? '#fff' : (isDark ? '#d1d5db' : '#555')} />
@@ -234,7 +247,7 @@ export const HomeScreen = ({ navigation }: Props) => {
                             </TouchableOpacity>
                         );
                     }
-                    const isSelected = activeTypeFilter === item;
+                    const isSelected = activeTypeFilter.includes(item);
                     const typeColor = getColorsByType(item);
                     const bgColor = isSelected ? typeColor : (isDark ? hexToRgba(typeColor, 0.2) : hexToRgba(typeColor, 0.12));
                     const iconSource = TYPE_ICONS[item];

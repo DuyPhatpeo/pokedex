@@ -6,9 +6,10 @@ interface PokemonState {
     allPokemon: PokemonListItem[];
     pokemonList: PokemonListItem[];
     pokemonDetails: Record<string, PokemonDetail>;
+    typeCache: Record<string, PokemonListItem[]>; // cache for type filter results
     searchQuery: string;
-    activeTypeFilter: string | null;
-    sortOption: string; // 'id-asc', 'id-desc', 'name-asc', 'name-desc'
+    activeTypeFilter: string[]; // supports multi-select
+    sortOption: string;
     isLoading: boolean;
     isLoadingMore: boolean;
     error: string | null;
@@ -17,6 +18,8 @@ interface PokemonState {
 
     setSearchQuery: (query: string) => void;
     setTypeFilter: (type: string | null) => void;
+    toggleTypeFilter: (type: string) => void;
+    clearTypeFilter: () => void;
     setSortOption: (sort: string) => void;
     applyFiltersAndSort: () => Promise<void>;
     loadPokemonList: (refresh?: boolean) => Promise<void>;
@@ -27,9 +30,10 @@ export const usePokemonStore = create<PokemonState>((set, get) => ({
     allPokemon: [],
     pokemonList: [],
     pokemonDetails: {},
+    typeCache: {},
     searchQuery: '',
-    activeTypeFilter: null,
-    sortOption: 'id-asc', // Default sort
+    activeTypeFilter: [],
+    sortOption: 'id-asc',
     isLoading: false,
     isLoadingMore: false,
     error: null,
@@ -42,7 +46,21 @@ export const usePokemonStore = create<PokemonState>((set, get) => ({
     },
 
     setTypeFilter: (type: string | null) => {
-        set({ activeTypeFilter: type });
+        set({ activeTypeFilter: type ? [type] : [] });
+        get().applyFiltersAndSort();
+    },
+
+    toggleTypeFilter: (type: string) => {
+        const current = get().activeTypeFilter;
+        const next = current.includes(type)
+            ? current.filter(t => t !== type)
+            : [...current, type];
+        set({ activeTypeFilter: next });
+        get().applyFiltersAndSort();
+    },
+
+    clearTypeFilter: () => {
+        set({ activeTypeFilter: [] });
         get().applyFiltersAndSort();
     },
 
@@ -52,10 +70,11 @@ export const usePokemonStore = create<PokemonState>((set, get) => ({
     },
 
     applyFiltersAndSort: async () => {
-        const { searchQuery, activeTypeFilter, sortOption, allPokemon } = get();
+        const { searchQuery, activeTypeFilter, sortOption, allPokemon, typeCache } = get();
+        const hasTypeFilter = activeTypeFilter.length > 0;
 
-        // Return to default pagination if no filters are applied
-        if (searchQuery.trim().length === 0 && !activeTypeFilter && sortOption === 'id-asc') {
+        // Return to default pagination if no filters
+        if (searchQuery.trim().length === 0 && !hasTypeFilter && sortOption === 'id-asc') {
             get().loadPokemonList(true);
             return;
         }
@@ -64,9 +83,25 @@ export const usePokemonStore = create<PokemonState>((set, get) => ({
         try {
             let baseList: PokemonListItem[] = [];
 
-            if (activeTypeFilter) {
-                const typeData = await fetchType(activeTypeFilter);
-                baseList = typeData.pokemon.map((p: any) => p.pokemon);
+            if (hasTypeFilter) {
+                // Fetch each type, use cache if available
+                const listsByType = await Promise.all(
+                    activeTypeFilter.map(async (type) => {
+                        if (typeCache[type]) return typeCache[type];
+                        const typeData = await fetchType(type);
+                        const list: PokemonListItem[] = typeData.pokemon.map((p: any) => p.pokemon);
+                        set((state) => ({ typeCache: { ...state.typeCache, [type]: list } }));
+                        return list;
+                    })
+                );
+
+                if (listsByType.length === 1) {
+                    baseList = listsByType[0];
+                } else {
+                    // Intersection: keep only Pokemon that appear in ALL selected types
+                    const nameSets = listsByType.map(l => new Set(l.map(p => p.name)));
+                    baseList = listsByType[0].filter(p => nameSets.every(s => s.has(p.name)));
+                }
             } else {
                 if (allPokemon.length === 0) {
                     const response = await fetchAllPokemon();
@@ -79,7 +114,8 @@ export const usePokemonStore = create<PokemonState>((set, get) => ({
 
             let resultList = baseList;
             if (searchQuery.trim().length > 0) {
-                resultList = resultList.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()));
+                const q = searchQuery.toLowerCase();
+                resultList = resultList.filter(p => p.name.toLowerCase().includes(q));
             }
 
             const getPokemonId = (url: string) => {
@@ -87,16 +123,11 @@ export const usePokemonStore = create<PokemonState>((set, get) => ({
                 return parseInt(parts[parts.length - 1], 10);
             };
 
-            resultList.sort((a, b) => {
-                if (sortOption === 'id-asc') {
-                    return getPokemonId(a.url) - getPokemonId(b.url);
-                } else if (sortOption === 'id-desc') {
-                    return getPokemonId(b.url) - getPokemonId(a.url);
-                } else if (sortOption === 'name-asc') {
-                    return a.name.localeCompare(b.name);
-                } else if (sortOption === 'name-desc') {
-                    return b.name.localeCompare(a.name);
-                }
+            resultList = [...resultList].sort((a, b) => {
+                if (sortOption === 'id-asc') return getPokemonId(a.url) - getPokemonId(b.url);
+                if (sortOption === 'id-desc') return getPokemonId(b.url) - getPokemonId(a.url);
+                if (sortOption === 'name-asc') return a.name.localeCompare(b.name);
+                if (sortOption === 'name-desc') return b.name.localeCompare(a.name);
                 return 0;
             });
 
@@ -110,7 +141,7 @@ export const usePokemonStore = create<PokemonState>((set, get) => ({
         const { offset, isLoading, isLoadingMore, hasMore, searchQuery, activeTypeFilter, sortOption } = get();
 
         // Cannot load more while any filter/sort is active
-        if (searchQuery.trim().length > 0 || activeTypeFilter || sortOption !== 'id-asc') return;
+        if (searchQuery.trim().length > 0 || activeTypeFilter.length > 0 || sortOption !== 'id-asc') return;
         if (isLoading || isLoadingMore || (!hasMore && !refresh)) return;
 
         if (refresh) {

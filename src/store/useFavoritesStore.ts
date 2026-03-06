@@ -5,6 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 interface FavoritesState {
     favorites: string[];
     toggleFavorite: (name: string) => void;
+    clearFavorites: () => void;
 }
 
 export const useFavoritesStore = create<FavoritesState>()(
@@ -19,6 +20,7 @@ export const useFavoritesStore = create<FavoritesState>()(
                     return { favorites: [...state.favorites, name] };
                 }
             }),
+            clearFavorites: () => set({ favorites: [] }),
         }),
         {
             name: 'favorites-storage',

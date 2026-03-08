@@ -56,31 +56,41 @@ export const GenerationsScreen = ({ navigation }: Props) => {
         }
     }, [selectedGen, allPokemon]);
 
+    // Reset screen when switching to this tab
+    useEffect(() => {
+        const unsubscribe = navigation.getParent()?.addListener('tabPress', (e) => {
+            // Reset states when tab is pressed
+            setSelectedGen(null);
+            setGenPokemon([]);
+        });
+        return unsubscribe;
+    }, [navigation]);
+
     const handleSelectGen = useCallback(async (gen: Generation) => {
         setSelectedGen(gen);
-        setIsLoading(true);
 
-        try {
-            if (allPokemon.length === 0) {
+        // Lọc danh sách pokemon của thế hệ này và hiển thị ngay
+        const filtered = allPokemon.filter((p: PokemonListItem) => {
+            const parts = p.url.split('/').filter(Boolean);
+            const id = parseInt(parts[parts.length - 1], 10);
+            return id >= gen.startId && id <= gen.endId;
+        });
+        setGenPokemon(filtered);
+
+        if (allPokemon.length === 0) {
+            setIsLoading(true);
+            try {
                 await loadAllPokemon();
+            } finally {
+                setIsLoading(false);
             }
+            return; // Effect sẽ lo việc lọc lại khi allPokemon thay đổi
+        }
 
-            // Lọc danh sách pokemon của thế hệ này để preload
-            const filtered = allPokemon.length > 0 ? allPokemon.filter((p: PokemonListItem) => {
-                const parts = p.url.split('/').filter(Boolean);
-                const id = parseInt(parts[parts.length - 1], 10);
-                return id >= gen.startId && id <= gen.endId;
-            }) : [];
-
-            if (filtered.length > 0) {
-                // Preload 20 con đầu tiên để hiện lên ngay lập tức
-                const firstBatch = filtered.slice(0, 20).map(p => p.name);
-                await preloadGenerationDetails(firstBatch);
-            }
-        } catch (error) {
-            console.error('Error selecting generation:', error);
-        } finally {
-            setIsLoading(false);
+        // Pre-load chạy ngầm, không dùng await để tránh hiện Skeleton lâu
+        if (filtered.length > 0) {
+            const firstBatch = filtered.slice(0, 20).map(p => p.name);
+            preloadGenerationDetails(firstBatch);
         }
     }, [allPokemon, loadAllPokemon, preloadGenerationDetails]);
 

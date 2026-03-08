@@ -80,18 +80,14 @@ export const usePokemonStore = create<PokemonState>((set, get) => ({
         const hasSearch = searchQuery.trim().length > 0;
 
         if (!hasSearch && !hasTypeFilter) {
-            set({ searchResults: [] });
+            set({ searchResults: [], isLoading: false });
             return;
         }
 
         set({ isLoading: true });
-        const getPokemonId = (url: string) => {
-            const parts = url.split('/').filter(Boolean);
-            return parseInt(parts[parts.length - 1], 10);
-        };
 
         try {
-            let baseList: PokemonListItem[] = [];
+            let baseList: (PokemonListItem & { id?: number })[] = [];
 
             if (hasTypeFilter) {
                 const listsByType = await Promise.all(
@@ -99,8 +95,16 @@ export const usePokemonStore = create<PokemonState>((set, get) => ({
                         if (typeCache[type]) return typeCache[type];
                         const typeData = await fetchType(type);
                         const list: PokemonListItem[] = typeData.pokemon.map((p: any) => p.pokemon);
-                        set((s) => ({ typeCache: { ...s.typeCache, [type]: list } }));
-                        return list;
+
+                        // Add IDs to type list
+                        const listWithIds = list.map(p => {
+                            if ((p as any).id) return p;
+                            const parts = p.url.split('/').filter(Boolean);
+                            return { ...p, id: parseInt(parts[parts.length - 1], 10) };
+                        });
+
+                        set((s) => ({ typeCache: { ...s.typeCache, [type]: listWithIds } }));
+                        return listWithIds;
                     })
                 );
 
@@ -108,13 +112,17 @@ export const usePokemonStore = create<PokemonState>((set, get) => ({
                     baseList = listsByType[0];
                 } else {
                     const nameSets = listsByType.map(l => new Set(l.map(p => p.name)));
-                    baseList = listsByType[0].filter(p => nameSets.every(s => s.has(p.name)));
+                    baseList = (listsByType[0] as any[]).filter(p => nameSets.every(s => s.has(p.name)));
                 }
             } else {
                 if (allPokemon.length === 0) {
                     const response = await fetchAllPokemon();
-                    set({ allPokemon: response.results });
-                    baseList = response.results;
+                    const resultsWithIds = response.results.map(p => {
+                        const parts = p.url.split('/').filter(Boolean);
+                        return { ...p, id: parseInt(parts[parts.length - 1], 10) };
+                    });
+                    set({ allPokemon: resultsWithIds });
+                    baseList = resultsWithIds;
                 } else {
                     baseList = allPokemon;
                 }
@@ -124,12 +132,23 @@ export const usePokemonStore = create<PokemonState>((set, get) => ({
 
             if (hasSearch) {
                 const q = searchQuery.toLowerCase();
-                resultList = resultList.filter(p => p.name.toLowerCase().includes(q));
+                // Tối ưu hóa: Tìm kiếm theo tên hoặc ID (nếu đầu vào là số)
+                const isNumeric = !isNaN(Number(q)) && q.trim() !== '';
+                if (isNumeric) {
+                    const searchId = parseInt(q, 10);
+                    resultList = resultList.filter(p => p.id === searchId || p.name.toLowerCase().includes(q));
+                } else {
+                    resultList = resultList.filter(p => p.name.toLowerCase().includes(q));
+                }
             }
 
+            // Sắp xếp hiệu quả hơn bằng ID đã có sẵn
             resultList = [...resultList].sort((a, b) => {
-                if (sortOption === 'id-asc') return getPokemonId(a.url) - getPokemonId(b.url);
-                if (sortOption === 'id-desc') return getPokemonId(b.url) - getPokemonId(a.url);
+                const idA = (a as any).id || 0;
+                const idB = (b as any).id || 0;
+
+                if (sortOption === 'id-asc') return idA - idB;
+                if (sortOption === 'id-desc') return idB - idA;
                 if (sortOption === 'name-asc') return a.name.localeCompare(b.name);
                 if (sortOption === 'name-desc') return b.name.localeCompare(a.name);
                 return 0;
@@ -137,6 +156,7 @@ export const usePokemonStore = create<PokemonState>((set, get) => ({
 
             set({ searchResults: resultList, isLoading: false });
         } catch (err) {
+            console.error('Error applying filters:', err);
             set({ isLoading: false });
         }
     },

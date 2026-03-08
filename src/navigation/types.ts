@@ -2,8 +2,8 @@ import { NavigatorScreenParams } from '@react-navigation/native';
 
 export type MainTabParamList = {
     Pokedex: undefined;
-    Generations: undefined;
     Search: undefined;
+    Generations: undefined;
     Favorites: undefined;
     Settings: undefined;
 };

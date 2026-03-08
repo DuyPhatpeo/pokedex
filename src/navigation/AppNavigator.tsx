@@ -24,8 +24,8 @@ const Tab = createBottomTabNavigator<MainTabParamList>();
 
 const TAB_ITEMS = [
     { name: 'Pokedex', activeIcon: 'pokeball', inactiveIcon: 'pokeball', family: 'mci' },
-    { name: 'Generations', activeIcon: 'map', inactiveIcon: 'map-outline', family: 'ion' },
     { name: 'Search', activeIcon: 'search', inactiveIcon: 'search-outline', family: 'ion' },
+    { name: 'Generations', activeIcon: 'map', inactiveIcon: 'map-outline', family: 'ion' },
     { name: 'Favorites', activeIcon: 'heart', inactiveIcon: 'heart-outline', family: 'ion' },
     { name: 'Settings', activeIcon: 'settings', inactiveIcon: 'settings-outline', family: 'ion' },
 ] as const;
@@ -175,8 +175,8 @@ const MainTabs = () => {
             screenOptions={{ headerShown: false }}
         >
             <Tab.Screen name="Pokedex" component={HomeScreen} />
-            <Tab.Screen name="Generations" component={GenerationsScreen} />
             <Tab.Screen name="Search" component={SearchScreen} />
+            <Tab.Screen name="Generations" component={GenerationsScreen} />
             <Tab.Screen name="Favorites" component={FavoritesScreen} />
             <Tab.Screen name="Settings" component={SettingsScreen} />
         </Tab.Navigator>

@@ -19,6 +19,8 @@ export const TRANSLATIONS: Record<LanguageCode, any> = {
 
         // Home Screen
         searchPlaceholder: 'Search Pokémon...',
+        suggestedPokemon: 'Suggested for you',
+        categories: 'Categories',
         sortTitle: 'Sort by',
         sortIdAsc: 'ID Ascending',
         sortIdDesc: 'ID Descending',
@@ -80,6 +82,8 @@ export const TRANSLATIONS: Record<LanguageCode, any> = {
         tabSettings: 'Cài đặt',
 
         searchPlaceholder: 'Tìm Pokémon...',
+        suggestedPokemon: 'Gợi ý cho bạn',
+        categories: 'Danh mục hệ',
         sortTitle: 'Sắp xếp theo',
         sortIdAsc: 'ID Tăng dần',
         sortIdDesc: 'ID Giảm dần',

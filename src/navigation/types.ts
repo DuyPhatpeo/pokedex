@@ -10,6 +10,6 @@ export type MainTabParamList = {
 export type RootStackParamList = {
     Splash: undefined;
     MainTabs: undefined;
-    Detail: { name: string; bgColor: string };
+    Detail: { name: string; bgColor: string; isShiny?: boolean };
     TypeResults: { type: string };
 };

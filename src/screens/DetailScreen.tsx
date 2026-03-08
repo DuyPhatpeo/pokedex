@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
+import React, { useEffect, useState, useCallback } from 'react';
+import { View, Text, TouchableOpacity, ScrollView, Dimensions, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
@@ -17,7 +17,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Detail'>;
 
 export const DetailScreen = ({ route, navigation }: Props) => {
     const insets = useSafeAreaInsets();
-    const { name, bgColor } = route.params;
+    const { name, bgColor, isShiny: initialIsShiny } = route.params;
     const { pokemonDetails, loadPokemonDetail } = usePokemonStore();
     const detail = pokemonDetails[name];
 
@@ -25,7 +25,19 @@ export const DetailScreen = ({ route, navigation }: Props) => {
     const isFavorite = favorites.includes(name);
     const t = useTranslation();
 
-    // Entrance animations
+    const [isShiny, setIsShiny] = useState(!!initialIsShiny);
+
+    const toggleShiny = useCallback(() => {
+        setIsShiny(prev => !prev);
+    }, []);
+
+    const handlePressEvo = useCallback((evoName: string, evolColor: string) => {
+        navigation.push('Detail', {
+            name: evoName,
+            bgColor: evolColor,
+            isShiny: isShiny
+        });
+    }, [navigation, isShiny]);
     const bodyY = useSharedValue(60);
     const bodyOpacity = useSharedValue(0);
     const imageScale = useSharedValue(0.6);
@@ -59,7 +71,9 @@ export const DetailScreen = ({ route, navigation }: Props) => {
     }
 
     const formattedId = `#${detail.id.toString().padStart(3, '0')}`;
-    const imageUrl = detail.sprites?.other?.['official-artwork']?.front_default || detail.sprites?.front_default || '';
+    const normalUrl = detail.sprites?.other?.['official-artwork']?.front_default || detail.sprites?.front_default || '';
+    const shinyUrl = detail.sprites?.other?.['official-artwork']?.front_shiny || detail.sprites?.front_shiny || '';
+    const imageUrl = isShiny ? (shinyUrl || normalUrl) : normalUrl;
 
     // Render tỷ lệ giới tính gộp 2 màu
     const renderGender = () => {
@@ -112,9 +126,14 @@ export const DetailScreen = ({ route, navigation }: Props) => {
                         <TouchableOpacity onPress={() => navigation.goBack()} className="p-1">
                             <Ionicons name="arrow-back" size={28} color="#fff" />
                         </TouchableOpacity>
-                        <TouchableOpacity onPress={() => toggleFavorite(name)} className="p-1">
-                            <Ionicons name={isFavorite ? "heart" : "heart-outline"} size={28} color={isFavorite ? "#ef4444" : "#fff"} />
-                        </TouchableOpacity>
+                        <View className="flex-row items-center gap-4">
+                            <TouchableOpacity onPress={toggleShiny} className="p-1">
+                                <Ionicons name={isShiny ? "sparkles" : "sparkles-outline"} size={26} color={isShiny ? "#fde047" : "#fff"} />
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => toggleFavorite(name)} className="p-1">
+                                <Ionicons name={isFavorite ? "heart" : "heart-outline"} size={28} color={isFavorite ? "#ef4444" : "#fff"} />
+                            </TouchableOpacity>
+                        </View>
                     </View>
 
                     {/* Title Box */}
@@ -146,7 +165,7 @@ export const DetailScreen = ({ route, navigation }: Props) => {
                     </View>
 
                     {/* Pokemon Avatar Container */}
-                    <View className="items-center justify-center h-[160px] z-[10] -mb-[80px]">
+                    <View className="items-center justify-center h-[170px] z-[10] -mb-[85px]">
                         {imageUrl ? (
                             <Animated.View style={imageStyle}>
                                 <Image
@@ -158,6 +177,7 @@ export const DetailScreen = ({ route, navigation }: Props) => {
                             </Animated.View>
                         ) : null}
                     </View>
+
                 </View>
 
                 {/* BODY SECTION */}
@@ -311,10 +331,7 @@ export const DetailScreen = ({ route, navigation }: Props) => {
                                         <React.Fragment key={evo.name}>
                                             <TouchableOpacity
                                                 className="flex-row items-center gap-[15px]"
-                                                onPress={() => navigation.push('Detail', {
-                                                    name: evo.name,
-                                                    bgColor: evolColor
-                                                })}
+                                                onPress={() => handlePressEvo(evo.name, evolColor)}
                                             >
                                                 <View className="w-20 h-20 rounded-[40px] justify-center items-center overflow-hidden relative" style={{ backgroundColor: evolColor }}>
                                                     {TYPE_OUTLINE_ICONS[evo.types?.[0] || 'normal'] && (

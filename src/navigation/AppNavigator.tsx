@@ -141,7 +141,15 @@ const CustomTabBar = ({ state, navigation }: BottomTabBarProps) => {
             {TAB_ITEMS.map((tab, index) => {
                 const isFocused = state.index === index;
                 const onPress = () => {
-                    if (!isFocused) navigation.navigate(tab.name as any);
+                    const event = navigation.emit({
+                        type: 'tabPress',
+                        target: state.routes[index].key,
+                        canPreventDefault: true,
+                    });
+
+                    if (!isFocused && !event.defaultPrevented) {
+                        navigation.navigate(tab.name as any);
+                    }
                 };
 
                 return (

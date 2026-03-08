@@ -58,13 +58,14 @@ export const GenerationsScreen = ({ navigation }: Props) => {
 
     // Reset screen when switching to this tab
     useEffect(() => {
-        const unsubscribe = navigation.getParent()?.addListener('tabPress', (e) => {
-            // Reset states when tab is pressed
-            setSelectedGen(null);
-            setGenPokemon([]);
+        const unsubscribe = navigation.addListener('tabPress' as any, () => {
+            if (selectedGen) {
+                setSelectedGen(null);
+                setGenPokemon([]);
+            }
         });
         return unsubscribe;
-    }, [navigation]);
+    }, [navigation, selectedGen]);
 
     const handleSelectGen = useCallback(async (gen: Generation) => {
         setSelectedGen(gen);

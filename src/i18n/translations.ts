@@ -13,6 +13,7 @@ export const TRANSLATIONS: Record<LanguageCode, any> = {
     en: {
         // App Navigator
         tabPokedex: 'Pokédex',
+        tabSearch: 'Search',
         tabFavorites: 'Favorites',
         tabSettings: 'Settings',
 
@@ -74,6 +75,7 @@ export const TRANSLATIONS: Record<LanguageCode, any> = {
     },
     vi: {
         tabPokedex: 'Pokédex',
+        tabSearch: 'Tìm kiếm',
         tabFavorites: 'Yêu thích',
         tabSettings: 'Cài đặt',
 

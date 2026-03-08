@@ -27,8 +27,7 @@ export const HomeScreen = ({ navigation }: Props) => {
 
     const {
         pokemonList, isLoading, isLoadingMore, loadPokemonList,
-        searchQuery, setSearchQuery,
-        activeTypeFilter, toggleTypeFilter, clearTypeFilter, setTypeFilter,
+        activeTypeFilter, toggleTypeFilter, clearTypeFilter,
         sortOption, setSortOption
     } = usePokemonStore();
 
@@ -40,35 +39,11 @@ export const HomeScreen = ({ navigation }: Props) => {
     ];
 
     const flatListRef = useRef<FlatList>(null);
-
-    const [localSearch, setLocalSearch] = useState(searchQuery);
     const [showSortModal, setShowSortModal] = useState(false);
 
     useEffect(() => {
         loadPokemonList(true);
     }, []);
-
-    // Debounce tìm kiếm mượt mà
-    useEffect(() => {
-        const timeoutId = setTimeout(() => {
-            if (searchQuery !== localSearch) {
-                setSearchQuery(localSearch);
-            }
-        }, 300);
-        return () => clearTimeout(timeoutId);
-    }, [localSearch, setSearchQuery, searchQuery]);
-
-    const handleClearSearch = () => {
-        setLocalSearch('');
-        setSearchQuery('');
-    };
-
-    // Scroll to top when filters, search, or sort change
-    useEffect(() => {
-        if (pokemonList.length > 0 && flatListRef.current) {
-            flatListRef.current.scrollToOffset({ animated: true, offset: 0 });
-        }
-    }, [searchQuery, activeTypeFilter, sortOption]);
 
     const handleTypePress = (type: string) => {
         toggleTypeFilter(type);
@@ -155,48 +130,23 @@ export const HomeScreen = ({ navigation }: Props) => {
 
             {/* ===== HEADER ===== */}
             <View className="px-4 pt-4 pb-2.5">
-                {/* Logo thay cho chữ Pokédex */}
-                <Image
-                    source={isDark ? require('../../assets/Pokedex-light.png') : require('../../assets/Pokedex.png')}
-                    style={{ width: 110, height: 36, marginBottom: 12 }}
-                    contentFit="contain"
-                />
-                <View className="flex-row items-center">
-                    <View
-                        className="flex-row items-center bg-white dark:bg-[#1A1A1A] rounded-full px-[15px] h-[50px] flex-1 border border-transparent dark:border-[#333]"
-                        style={Platform.select({
-                            ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 6 },
-                            android: { elevation: isDark ? 0 : 4 },
-                            web: { boxShadow: isDark ? 'none' : '0 4px 12px rgba(0, 0, 0, 0.08)' } as any
-                        })}
+                <View className="flex-row items-center justify-between mb-4">
+                    <Image
+                        source={isDark ? require('../../assets/Pokedex-light.png') : require('../../assets/Pokedex.png')}
+                        style={{ width: 110, height: 36 }}
+                        contentFit="contain"
+                    />
+                    <TouchableOpacity
+                        onPress={() => setShowSortModal(true)}
+                        className="p-2 bg-gray-100 dark:bg-[#1A1A1A] rounded-full"
                     >
-                        <Ionicons name="search" size={20} color={isDark ? '#9ca3af' : '#747476'} style={{ marginRight: 10 }} />
-                        <TextInput
-                            className="flex-1 text-base text-[#303943] dark:text-gray-100"
-                            style={Platform.OS === 'web' && { outlineStyle: 'none' } as any}
-                            placeholder={t.searchPlaceholder}
-                            placeholderTextColor={isDark ? '#9ca3af' : '#747476'}
-                            value={localSearch}
-                            onChangeText={setLocalSearch}
-                            autoCapitalize="none"
-                            autoCorrect={false}
-                        />
-                        {localSearch.length > 0 && (
-                            <TouchableOpacity onPress={handleClearSearch} className="p-1.5">
-                                <Ionicons name="close-circle" size={20} color={isDark ? '#6b7280' : '#b0b0b0'} />
-                            </TouchableOpacity>
-                        )}
-                    </View>
-
-                    {/* Nút Sort */}
-                    <TouchableOpacity onPress={() => setShowSortModal(true)} className="w-[50px] h-[50px] rounded-full bg-[#303943] dark:bg-[#1A1A1A] justify-center items-center ml-2.5" activeOpacity={0.8}>
-                        <MaterialCommunityIcons name="sort-variant" size={22} color="#fff" />
+                        <MaterialCommunityIcons name="sort-variant" size={24} color={isDark ? '#fff' : '#303943'} />
                     </TouchableOpacity>
                 </View>
 
-                {/* Active filters row */}
+                {/* Active filters/sort row */}
                 {(sortOption !== 'id-asc' || activeTypeFilter.length > 0) && (
-                    <View className="flex-row flex-wrap items-center mt-2.5 gap-2">
+                    <View className="flex-row flex-wrap items-center mt-1 gap-2">
                         {sortOption !== 'id-asc' && (
                             <View className="flex-row items-center bg-[#fff0ee] dark:bg-[#e3350d22] rounded-xl px-2.5 py-1 border border-[#e3350d22] dark:border-[#e3350d44]">
                                 <Ionicons name="funnel" size={12} color={isDark ? '#f87171' : '#e3350d'} style={{ marginRight: 4 }} />
@@ -214,11 +164,6 @@ export const HomeScreen = ({ navigation }: Props) => {
                                 </TouchableOpacity>
                             </View>
                         ))}
-                        {activeTypeFilter.length > 1 && (
-                            <TouchableOpacity onPress={clearTypeFilter} className="flex-row items-center bg-gray-100 dark:bg-[#222] rounded-xl px-2.5 py-1">
-                                <Text className="text-xs font-bold text-gray-500 dark:text-gray-400">Clear all</Text>
-                            </TouchableOpacity>
-                        )}
                     </View>
                 )}
             </View>

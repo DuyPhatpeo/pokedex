@@ -15,6 +15,7 @@ import { FavoritesScreen } from '../screens/FavoritesScreen';
 import { SettingsScreen } from '../screens/SettingsScreen';
 import { SearchScreen } from '../screens/SearchScreen';
 import { TypeResultsScreen } from '../screens/TypeResultsScreen';
+import { GenerationsScreen } from '../screens/GenerationsScreen';
 import { RootStackParamList, MainTabParamList } from './types';
 import { useTranslation } from '../i18n/translations';
 
@@ -23,6 +24,7 @@ const Tab = createBottomTabNavigator<MainTabParamList>();
 
 const TAB_ITEMS = [
     { name: 'Pokedex', activeIcon: 'pokeball', inactiveIcon: 'pokeball', family: 'mci' },
+    { name: 'Generations', activeIcon: 'map', inactiveIcon: 'map-outline', family: 'ion' },
     { name: 'Search', activeIcon: 'search', inactiveIcon: 'search-outline', family: 'ion' },
     { name: 'Favorites', activeIcon: 'heart', inactiveIcon: 'heart-outline', family: 'ion' },
     { name: 'Settings', activeIcon: 'settings', inactiveIcon: 'settings-outline', family: 'ion' },
@@ -113,6 +115,7 @@ const CustomTabBar = ({ state, navigation }: BottomTabBarProps) => {
 
     const getTabLabel = (name: string) => {
         if (name === 'Pokedex') return t.tabPokedex;
+        if (name === 'Generations') return t.tabGenerations;
         if (name === 'Search') return t.tabSearch;
         if (name === 'Favorites') return t.tabFavorites;
         if (name === 'Settings') return t.tabSettings;
@@ -164,6 +167,7 @@ const MainTabs = () => {
             screenOptions={{ headerShown: false }}
         >
             <Tab.Screen name="Pokedex" component={HomeScreen} />
+            <Tab.Screen name="Generations" component={GenerationsScreen} />
             <Tab.Screen name="Search" component={SearchScreen} />
             <Tab.Screen name="Favorites" component={FavoritesScreen} />
             <Tab.Screen name="Settings" component={SettingsScreen} />

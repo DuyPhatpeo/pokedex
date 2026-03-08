@@ -165,9 +165,9 @@ export const HomeScreen = ({ navigation }: Props) => {
                     }}
                 />
 
-                {/* Active Sort Tag */}
-                {sortOption !== 'id-asc' && (
-                    <View className="flex-row items-center mt-3">
+                {/* Active Sort & Generation Tags */}
+                <View className="flex-row items-center flex-wrap gap-2 mt-2 px-1">
+                    {sortOption !== 'id-asc' && (
                         <View className="flex-row items-center bg-[#fff0ee] dark:bg-[#e3350d22] rounded-xl px-2.5 py-1 border border-[#e3350d22] dark:border-[#e3350d44]">
                             <Ionicons name="funnel" size={12} color={isDark ? '#f87171' : '#e3350d'} style={{ marginRight: 4 }} />
                             <Text className="text-xs font-semibold text-[#e3350d] dark:text-red-400">{activeSortLabel}</Text>
@@ -175,8 +175,9 @@ export const HomeScreen = ({ navigation }: Props) => {
                                 <Ionicons name="close-circle" size={14} color={isDark ? '#f87171' : '#e3350d'} />
                             </TouchableOpacity>
                         </View>
-                    </View>
-                )}
+                    )}
+
+                </View>
             </View>
 
             {/* ===== POKEMON LIST ===== */}

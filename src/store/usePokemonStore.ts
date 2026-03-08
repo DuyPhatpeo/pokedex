@@ -24,6 +24,7 @@ interface PokemonState {
     setSortOption: (sort: string) => void;
     applyFiltersAndSort: () => Promise<void>;
     loadPokemonList: (refresh?: boolean) => Promise<void>;
+    loadAllPokemon: () => Promise<void>;
     loadPokemonDetail: (name: string) => Promise<void>;
 }
 
@@ -72,7 +73,8 @@ export const usePokemonStore = create<PokemonState>((set, get) => ({
     },
 
     applyFiltersAndSort: async () => {
-        const { searchQuery, activeTypeFilter, sortOption, allPokemon, typeCache } = get();
+        const state = get();
+        const { searchQuery, activeTypeFilter, sortOption, allPokemon, typeCache } = state;
         const hasTypeFilter = activeTypeFilter.length > 0;
         const hasSearch = searchQuery.trim().length > 0;
 
@@ -82,6 +84,11 @@ export const usePokemonStore = create<PokemonState>((set, get) => ({
         }
 
         set({ isLoading: true });
+        const getPokemonId = (url: string) => {
+            const parts = url.split('/').filter(Boolean);
+            return parseInt(parts[parts.length - 1], 10);
+        };
+
         try {
             let baseList: PokemonListItem[] = [];
 
@@ -91,7 +98,7 @@ export const usePokemonStore = create<PokemonState>((set, get) => ({
                         if (typeCache[type]) return typeCache[type];
                         const typeData = await fetchType(type);
                         const list: PokemonListItem[] = typeData.pokemon.map((p: any) => p.pokemon);
-                        set((state) => ({ typeCache: { ...state.typeCache, [type]: list } }));
+                        set((s) => ({ typeCache: { ...s.typeCache, [type]: list } }));
                         return list;
                     })
                 );
@@ -113,15 +120,11 @@ export const usePokemonStore = create<PokemonState>((set, get) => ({
             }
 
             let resultList = baseList;
+
             if (hasSearch) {
                 const q = searchQuery.toLowerCase();
                 resultList = resultList.filter(p => p.name.toLowerCase().includes(q));
             }
-
-            const getPokemonId = (url: string) => {
-                const parts = url.split('/').filter(Boolean);
-                return parseInt(parts[parts.length - 1], 10);
-            };
 
             resultList = [...resultList].sort((a, b) => {
                 if (sortOption === 'id-asc') return getPokemonId(a.url) - getPokemonId(b.url);
@@ -138,9 +141,8 @@ export const usePokemonStore = create<PokemonState>((set, get) => ({
     },
 
     loadPokemonList: async (refresh = false) => {
-        const { offset, isLoading, isLoadingMore, hasMore } = get();
-
-        if (isLoading || isLoadingMore || (!hasMore && !refresh)) return;
+        const state = get();
+        if (state.isLoading || state.isLoadingMore || (!state.hasMore && !refresh)) return;
 
         if (refresh) {
             set({ isLoading: true, error: null, offset: 0, hasMore: true });
@@ -149,11 +151,11 @@ export const usePokemonStore = create<PokemonState>((set, get) => ({
         }
 
         try {
-            const currentOffset = refresh ? 0 : offset;
+            const currentOffset = refresh ? 0 : get().offset;
             const response = await fetchPokemonList(20, currentOffset);
 
-            set((state) => ({
-                homePokemonList: refresh ? response.results : [...state.homePokemonList, ...response.results],
+            set((s) => ({
+                homePokemonList: refresh ? response.results : [...s.homePokemonList, ...response.results],
                 offset: currentOffset + 20,
                 hasMore: response.next !== null,
                 isLoading: false,
@@ -165,6 +167,18 @@ export const usePokemonStore = create<PokemonState>((set, get) => ({
                 isLoading: false,
                 isLoadingMore: false,
             });
+        }
+    },
+
+    loadAllPokemon: async () => {
+        if (get().allPokemon.length > 0) return;
+
+        set({ isLoading: true });
+        try {
+            const response = await fetchAllPokemon();
+            set({ allPokemon: response.results, isLoading: false });
+        } catch (error) {
+            set({ isLoading: false });
         }
     },
 

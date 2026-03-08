@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useColorScheme } from 'nativewind';
 import { usePokemonStore } from '../store/usePokemonStore';
 import { PokemonCard } from '../components/PokemonCard';
+import { SkeletonList, SkeletonBox } from '../components/Skeleton';
 import { PokemonListItem } from '../types/pokemon';
 import { getColorsByType, hexToRgba } from '../utils/colors';
 import { TYPE_ICONS } from '../utils/typeIcons';
@@ -69,8 +70,19 @@ export const HomeScreen = ({ navigation }: Props) => {
 
     if (isLoading && homePokemonList.length === 0) {
         return (
-            <View className="flex-1 justify-center items-center bg-white dark:bg-black">
-                <ActivityIndicator size="large" color="#e3350d" />
+            <View className="flex-1 bg-white dark:bg-black" style={{ paddingTop: insets.top }}>
+                <View className="px-5 pt-4 pb-2">
+                    <View className="flex-row items-center justify-between mb-5">
+                        <SkeletonBox height={36} width={110} borderRadius={10} />
+                        <SkeletonBox height={32} width={32} borderRadius={16} />
+                    </View>
+                    <View className="flex-row gap-2 mb-4">
+                        <SkeletonBox height={34} width={80} borderRadius={20} />
+                        <SkeletonBox height={34} width={80} borderRadius={20} />
+                        <SkeletonBox height={34} width={80} borderRadius={20} />
+                    </View>
+                </View>
+                <SkeletonList count={6} />
             </View>
         );
     }

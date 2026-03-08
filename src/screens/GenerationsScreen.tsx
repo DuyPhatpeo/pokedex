@@ -14,6 +14,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList, MainTabParamList } from '../navigation/types';
 import { PokemonCard } from '../components/PokemonCard';
 import { PokemonListItem } from '../types/pokemon';
+import { SkeletonList, SkeletonBox } from '../components/Skeleton';
 
 type Props = CompositeScreenProps<
     BottomTabScreenProps<MainTabParamList, 'Generations'>,
@@ -32,13 +33,14 @@ const REGION_COLORS: Record<string, string[]> = {
     'Paldea': ['#e0c068', '#b89a50'],
 };
 
+
 export const GenerationsScreen = ({ navigation }: Props) => {
     const insets = useSafeAreaInsets();
     const t = useTranslation();
     const { colorScheme } = useColorScheme();
     const isDark = colorScheme === 'dark';
 
-    const { allPokemon, loadAllPokemon } = usePokemonStore();
+    const { allPokemon, loadAllPokemon, preloadGenerationDetails } = usePokemonStore();
     const [selectedGen, setSelectedGen] = useState<Generation | null>(null);
     const [genPokemon, setGenPokemon] = useState<PokemonListItem[]>([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -56,12 +58,31 @@ export const GenerationsScreen = ({ navigation }: Props) => {
 
     const handleSelectGen = useCallback(async (gen: Generation) => {
         setSelectedGen(gen);
-        if (allPokemon.length === 0) {
-            setIsLoading(true);
-            await loadAllPokemon();
+        setIsLoading(true);
+
+        try {
+            if (allPokemon.length === 0) {
+                await loadAllPokemon();
+            }
+
+            // Lọc danh sách pokemon của thế hệ này để preload
+            const filtered = allPokemon.length > 0 ? allPokemon.filter((p: PokemonListItem) => {
+                const parts = p.url.split('/').filter(Boolean);
+                const id = parseInt(parts[parts.length - 1], 10);
+                return id >= gen.startId && id <= gen.endId;
+            }) : [];
+
+            if (filtered.length > 0) {
+                // Preload 20 con đầu tiên để hiện lên ngay lập tức
+                const firstBatch = filtered.slice(0, 20).map(p => p.name);
+                await preloadGenerationDetails(firstBatch);
+            }
+        } catch (error) {
+            console.error('Error selecting generation:', error);
+        } finally {
             setIsLoading(false);
         }
-    }, [allPokemon, loadAllPokemon]);
+    }, [allPokemon, loadAllPokemon, preloadGenerationDetails]);
 
     const handleBack = () => {
         setSelectedGen(null);
@@ -96,7 +117,6 @@ export const GenerationsScreen = ({ navigation }: Props) => {
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 1 }}
                 >
-                    {/* Decorative Pokeball */}
                     <View
                         style={{
                             position: 'absolute',
@@ -154,13 +174,12 @@ export const GenerationsScreen = ({ navigation }: Props) => {
             </View>
 
             {isLoading ? (
-                <View className="flex-1 justify-center items-center">
-                    <ActivityIndicator size="large" color="#e3350d" />
-                    <Text className="mt-4 text-gray-500 dark:text-gray-400 font-bold">Loading Data...</Text>
+                <View className="flex-1">
+                    <SkeletonList count={6} />
                 </View>
             ) : selectedGen ? (
                 <FlatList
-                    key="pokemon-list"
+                    key="pokemon-list-sync"
                     data={genPokemon}
                     keyExtractor={(item) => item.name}
                     renderItem={({ item }) => <PokemonCard item={item} onPress={handlePressPokemon} />}

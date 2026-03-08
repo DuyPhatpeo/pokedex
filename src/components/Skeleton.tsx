@@ -156,3 +156,31 @@ export const SkeletonDetailScreen = ({ bgColor }: { bgColor: string }) => {
         </View>
     );
 };
+// ---------- Skeleton Grid Card for Generations ----------
+export const SkeletonGridCard = () => {
+    return (
+        <View className="w-full h-[200px] mb-4 rounded-[32px] p-4 bg-[#f0f0f0] items-center justify-between">
+            <View className="absolute top-3 left-4">
+                <SkeletonBox height={14} width={40} borderRadius={6} />
+            </View>
+            <View className="mt-8">
+                <SkeletonBox height={80} width={80} borderRadius={40} />
+            </View>
+            <View className="w-full bg-[#e0e0e0] rounded-[20px] p-2.5 items-center">
+                <SkeletonBox height={20} width="80%" borderRadius={6} className="mb-2" />
+                <SkeletonBox height={16} width="40%" borderRadius={20} />
+            </View>
+        </View>
+    );
+};
+
+// ---------- Skeleton List for Lists ----------
+export const SkeletonList = ({ count = 5 }: { count?: number }) => {
+    return (
+        <ScrollView showsVerticalScrollIndicator={false}>
+            {Array.from({ length: count }).map((_, i) => (
+                <SkeletonCard key={i} />
+            ))}
+        </ScrollView>
+    );
+};

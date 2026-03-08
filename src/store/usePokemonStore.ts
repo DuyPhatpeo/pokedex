@@ -26,6 +26,7 @@ interface PokemonState {
     loadPokemonList: (refresh?: boolean) => Promise<void>;
     loadAllPokemon: () => Promise<void>;
     loadPokemonDetail: (name: string) => Promise<void>;
+    preloadGenerationDetails: (names: string[]) => Promise<void>;
 }
 
 export const usePokemonStore = create<PokemonState>((set, get) => ({
@@ -246,6 +247,20 @@ export const usePokemonStore = create<PokemonState>((set, get) => ({
             }));
         } catch (error) {
             console.error(`Error fetching detail for ${name}:`, error);
+        }
+    },
+
+    preloadGenerationDetails: async (names: string[]) => {
+        const { pokemonDetails } = get();
+        const toFetch = names.filter(name => !pokemonDetails[name]);
+
+        if (toFetch.length === 0) return;
+
+        // Fetch in batches of 10 to avoid overwhelming the API/Network
+        const batchSize = 10;
+        for (let i = 0; i < toFetch.length; i += batchSize) {
+            const batch = toFetch.slice(i, i + batchSize);
+            await Promise.all(batch.map(name => get().loadPokemonDetail(name)));
         }
     }
 }));

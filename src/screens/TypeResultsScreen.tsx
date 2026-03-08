@@ -24,6 +24,14 @@ export const TypeResultsScreen = ({ route, navigation }: Props) => {
     const [pokemonList, setPokemonList] = useState<PokemonListItem[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
+    const handleBack = useCallback(() => {
+        if (navigation.canGoBack()) {
+            navigation.goBack();
+        } else {
+            navigation.navigate('MainTabs');
+        }
+    }, [navigation]);
+
     const typeColor = getColorsByType(currentType);
 
     useEffect(() => {
@@ -71,7 +79,7 @@ export const TypeResultsScreen = ({ route, navigation }: Props) => {
             {/* Nav Bar */}
             <View style={{ paddingTop: Math.max(insets.top, 20) + 10 }} className="flex-row items-center px-5 mb-4">
                 <TouchableOpacity
-                    onPress={() => navigation.goBack()}
+                    onPress={handleBack}
                     className="w-10 h-10 rounded-full bg-white/20 justify-center items-center"
                 >
                     <Ionicons name="arrow-back" size={26} color="#fff" />

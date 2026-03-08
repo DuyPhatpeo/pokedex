@@ -31,6 +31,14 @@ export const DetailScreen = ({ route, navigation }: Props) => {
         setIsShiny(prev => !prev);
     }, []);
 
+    const handleBack = useCallback(() => {
+        if (navigation.canGoBack()) {
+            navigation.goBack();
+        } else {
+            navigation.navigate('MainTabs');
+        }
+    }, [navigation]);
+
     const handlePressEvo = useCallback((evoName: string, evolColor: string) => {
         navigation.push('Detail', {
             name: evoName,
@@ -123,7 +131,7 @@ export const DetailScreen = ({ route, navigation }: Props) => {
 
                     {/* Navigation Bar */}
                     <View style={{ paddingTop: Math.max(insets.top, 20) + 10 }} className="flex-row items-center justify-between px-5 mb-2.5">
-                        <TouchableOpacity onPress={() => navigation.goBack()} className="p-1">
+                        <TouchableOpacity onPress={handleBack} className="p-1">
                             <Ionicons name="arrow-back" size={28} color="#fff" />
                         </TouchableOpacity>
                         <View className="flex-row items-center gap-4">

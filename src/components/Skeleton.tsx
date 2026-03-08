@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { View, Animated } from 'react-native';
+import { View, Animated, ScrollView } from 'react-native';
 
 interface Props {
     height?: number;
@@ -67,10 +67,21 @@ export const SkeletonCard = () => {
 export const SkeletonDetailScreen = ({ bgColor }: { bgColor: string }) => {
     return (
         <View className="flex-1" style={{ backgroundColor: bgColor }}>
-            {/* Header */}
-            <View className="px-6 pt-[60px] pb-5">
-                <SkeletonBox height={14} width={50} borderRadius={6} className="bg-white/40 mb-3" />
-                <SkeletonBox height={38} width={200} borderRadius={10} className="bg-white/40 mb-[14px]" />
+            {/* Header Icons & Nav */}
+            <View className="flex-row justify-between px-5 pt-[60px] mb-2.5">
+                <SkeletonBox height={32} width={32} borderRadius={16} className="bg-white/30" />
+                <View className="flex-row gap-3">
+                    <SkeletonBox height={32} width={32} borderRadius={16} className="bg-white/30" />
+                    <SkeletonBox height={32} width={32} borderRadius={16} className="bg-white/30" />
+                </View>
+            </View>
+
+            {/* Header Content */}
+            <View className="px-6 pb-5">
+                <View className="flex-row justify-between items-center mb-2">
+                    <SkeletonBox height={38} width={180} borderRadius={10} className="bg-white/40" />
+                    <SkeletonBox height={20} width={60} borderRadius={6} className="bg-white/30" />
+                </View>
                 <View className="flex-row gap-2.5">
                     <SkeletonBox height={30} width={90} borderRadius={20} className="bg-white/35" />
                     <SkeletonBox height={30} width={90} borderRadius={20} className="bg-white/35" />
@@ -78,42 +89,69 @@ export const SkeletonDetailScreen = ({ bgColor }: { bgColor: string }) => {
             </View>
 
             {/* Avatar placeholder */}
-            <View className="items-center -mb-[70px] z-10">
-                <SkeletonBox height={160} width={160} borderRadius={80} className="bg-white/30" />
+            <View className="items-center -mb-[85px] z-10">
+                <SkeletonBox height={220} width={220} borderRadius={110} className="bg-white/30" />
             </View>
 
             {/* White body */}
-            <View className="flex-1 bg-white rounded-t-[50px] px-6 pt-[90px]">
-                {/* Description */}
-                <SkeletonBox height={14} width="100%" borderRadius={6} className="mb-2" />
-                <SkeletonBox height={14} width="85%" borderRadius={6} className="mb-6" />
+            <View className="flex-1 bg-white dark:bg-black rounded-t-[50px] px-6 pt-[95px]">
+                <ScrollView showsVerticalScrollIndicator={false}>
+                    {/* Description */}
+                    <SkeletonBox height={14} width="100%" borderRadius={6} className="mb-2 dark:bg-gray-800" />
+                    <SkeletonBox height={14} width="100%" borderRadius={6} className="mb-2 dark:bg-gray-800" />
+                    <SkeletonBox height={14} width="85%" borderRadius={6} className="mb-8 dark:bg-gray-800" />
 
-                {/* Stat boxes */}
-                <View className="flex-row flex-wrap gap-3 mb-6">
-                    {[1, 2, 3, 4].map(i => (
-                        <SkeletonBox key={i} height={70} width="48%" borderRadius={16} />
-                    ))}
-                </View>
+                    {/* Stat boxes 2x2 */}
+                    <View className="flex-row flex-wrap gap-3 mb-8">
+                        {[1, 2, 3, 4].map(i => (
+                            <SkeletonBox key={i} height={80} width="48%" borderRadius={20} className="dark:bg-gray-900" />
+                        ))}
+                    </View>
 
-                {/* Gender */}
-                <SkeletonBox height={14} width={80} borderRadius={6} className="mb-2.5" />
-                <SkeletonBox height={12} width="100%" borderRadius={6} className="mb-6" />
+                    {/* Gender section */}
+                    <View className="items-center mb-9">
+                        <SkeletonBox height={16} width={100} borderRadius={6} className="mb-3 dark:bg-gray-800" />
+                        <SkeletonBox height={10} width="100%" borderRadius={5} className="dark:bg-gray-900" />
+                    </View>
 
-                {/* Weaknesses */}
-                <SkeletonBox height={22} width={120} borderRadius={8} className="mb-[14px]" />
-                <View className="flex-row flex-wrap gap-2 mb-6">
-                    {[1, 2, 3, 4, 5].map(i => (
-                        <SkeletonBox key={i} height={30} width={80} borderRadius={20} />
-                    ))}
-                </View>
+                    {/* Base Stats Section */}
+                    <SkeletonBox height={24} width={120} borderRadius={8} className="mb-6 dark:bg-gray-800" />
+                    <View className="mb-9">
+                        {[1, 2, 3, 4, 5, 6].map(i => (
+                            <View key={i} className="flex-row items-center mb-4">
+                                <SkeletonBox height={14} width={80} borderRadius={6} className="mr-4 dark:bg-gray-800" />
+                                <SkeletonBox height={14} width={30} borderRadius={6} className="mr-4 dark:bg-gray-800" />
+                                <SkeletonBox height={8} width="50%" borderRadius={4} className="flex-1 dark:bg-gray-900" />
+                            </View>
+                        ))}
+                    </View>
 
-                {/* Evolutions */}
-                <SkeletonBox height={22} width={120} borderRadius={8} className="mb-[14px]" />
-                <View className="flex-row gap-[14px] items-center">
-                    <SkeletonBox height={80} width={80} borderRadius={40} />
-                    <SkeletonBox height={32} width={32} borderRadius={16} />
-                    <SkeletonBox height={80} width={80} borderRadius={40} />
-                </View>
+                    {/* Weaknesses */}
+                    <SkeletonBox height={24} width={150} borderRadius={8} className="mb-4 dark:bg-gray-800" />
+                    <View className="flex-row flex-wrap gap-2.5 mb-9">
+                        {[1, 2, 3, 4].map(i => (
+                            <SkeletonBox key={i} height={32} width={85} borderRadius={20} className="dark:bg-gray-800" />
+                        ))}
+                    </View>
+
+                    {/* Evolutions */}
+                    <SkeletonBox height={24} width={150} borderRadius={8} className="mb-4 dark:bg-gray-800" />
+                    <View className="p-5 border border-gray-100 dark:border-gray-800 rounded-[24px] mb-[100px] gap-6">
+                        {[1, 2].map(i => (
+                            <View key={i} className="flex-row items-center gap-4">
+                                <SkeletonBox height={80} width={80} borderRadius={40} className="dark:bg-gray-900" />
+                                <View className="flex-1 gap-2">
+                                    <SkeletonBox height={20} width={100} borderRadius={6} className="dark:bg-gray-800" />
+                                    <SkeletonBox height={14} width={60} borderRadius={6} className="dark:bg-gray-800" />
+                                    <View className="flex-row gap-2 mt-1">
+                                        <SkeletonBox height={24} width={60} borderRadius={20} className="dark:bg-gray-800" />
+                                        <SkeletonBox height={24} width={60} borderRadius={20} className="dark:bg-gray-800" />
+                                    </View>
+                                </View>
+                            </View>
+                        ))}
+                    </View>
+                </ScrollView>
             </View>
         </View>
     );

@@ -1,6 +1,6 @@
 import React from 'react';
-import { Platform, View, TouchableOpacity, Text } from 'react-native';
-import Animated, { useAnimatedStyle, withSpring } from 'react-native-reanimated';
+import { Platform, View, TouchableOpacity, Text, Dimensions } from 'react-native';
+import Animated, { useAnimatedStyle, withSpring, useSharedValue, withTiming } from 'react-native-reanimated';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator, BottomTabBarProps } from '@react-navigation/bottom-tabs';
@@ -49,9 +49,9 @@ const PokeballIcon = ({ focused, isDark, size = 26 }: { focused: boolean, isDark
         );
     }
 
-    // Active: red top, white bottom, dark border
-    const borderColor = isDark ? '#fff' : '#111';
-    const bottomColor = isDark ? '#000' : '#fff';
+    // Active: red top, white bottom, black border
+    const borderColor = '#000'; // Đổi sang màu đen theo yêu cầu
+    const bottomColor = '#fff'; // Giữ màu trắng như yêu cầu, không đổi sang đen khi darkmode
     return (
         <View style={{ width: size, height: size, borderRadius: size / 2, borderWidth: 2, borderColor, overflow: 'hidden', alignItems: 'center', justifyContent: 'center', backgroundColor: 'transparent' }}>
             <View style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '50%', backgroundColor: '#ef4444', borderBottomWidth: 2, borderBottomColor: borderColor }} />
@@ -64,7 +64,7 @@ const PokeballIcon = ({ focused, isDark, size = 26 }: { focused: boolean, isDark
 };
 
 const AnimatedTabIcon = ({ tab, isFocused, isDark, currentActiveColor }: any) => {
-    const iconColor = isFocused ? currentActiveColor : (isDark ? '#6b7280' : '#a3a3a3');
+    const iconColor = isFocused ? '#ffffff' : (isDark ? '#6b7280' : '#a3a3a3');
 
     if (tab.name === 'Pokedex') {
         return <PokeballIcon focused={isFocused} isDark={isDark} size={28} />;
@@ -81,8 +81,8 @@ const AnimatedTabIcon = ({ tab, isFocused, isDark, currentActiveColor }: any) =>
 const TabItem = ({ tab, isFocused, onPress, isDark, label, currentActiveColor }: any) => {
     const animatedIconStyle = useAnimatedStyle(() => ({
         transform: [
-            { translateY: withSpring(isFocused ? -8 : 0, { damping: 12, stiffness: 150 }) },
-            { scale: withSpring(isFocused ? 1.15 : 1, { damping: 12, stiffness: 150 }) }
+            { translateY: withSpring(isFocused ? -4 : 0, { damping: 12, stiffness: 150 }) },
+            { scale: withSpring(isFocused ? 1.08 : 1, { damping: 12, stiffness: 150 }) }
         ]
     }));
 
@@ -97,7 +97,7 @@ const TabItem = ({ tab, isFocused, onPress, isDark, label, currentActiveColor }:
             </Animated.View>
 
             {isFocused && (
-                <Text style={{ fontSize: 11, color: currentActiveColor, fontWeight: '700', position: 'absolute', bottom: 4 }}>
+                <Text style={{ fontSize: 11, color: '#ffffff', fontWeight: '800', position: 'absolute', bottom: 2 }}>
                     {label}
                 </Text>
             )}
@@ -112,6 +112,20 @@ const CustomTabBar = ({ state, navigation }: BottomTabBarProps) => {
     const isDark = colorScheme === 'dark';
 
     const currentActiveColor = isDark ? ACTIVE_COLOR_DARK : ACTIVE_COLOR;
+    const { width: SCREEN_WIDTH } = Dimensions.get('window');
+    const TAB_WIDTH = SCREEN_WIDTH / TAB_ITEMS.length;
+
+    const translateX = useSharedValue(state.index * TAB_WIDTH);
+
+    React.useEffect(() => {
+        translateX.value = withTiming(state.index * TAB_WIDTH, {
+            duration: 300,
+        });
+    }, [state.index, TAB_WIDTH]);
+
+    const indicatorStyle = useAnimatedStyle(() => ({
+        transform: [{ translateX: translateX.value }],
+    }));
 
     const getTabLabel = (name: string) => {
         if (name === 'Pokedex') return t.tabPokedex;
@@ -138,6 +152,37 @@ const CustomTabBar = ({ state, navigation }: BottomTabBarProps) => {
                 })
             ]}
         >
+            {/* Sliding Indicator Background */}
+            <Animated.View
+                style={[
+                    indicatorStyle,
+                    {
+                        position: 'absolute',
+                        bottom: insets.bottom,
+                        width: TAB_WIDTH,
+                        height: 56, // Giảm chiều cao xuống một chút cho "vừa thôi"
+                        alignItems: 'center',
+                        justifyContent: 'flex-end',
+                    }
+                ]}
+            >
+                <View
+                    style={{
+                        width: '75%', // Thu hẹp độ rộng lại một chút
+                        height: '100%',
+                        backgroundColor: currentActiveColor,
+                        borderTopLeftRadius: 28,
+                        borderTopRightRadius: 28,
+                        // Làm nhẹ đổ bóng lại
+                        shadowColor: currentActiveColor,
+                        shadowOffset: { width: 0, height: 2 },
+                        shadowOpacity: 0.15,
+                        shadowRadius: 6,
+                        elevation: 3,
+                    }}
+                />
+            </Animated.View>
+
             {TAB_ITEMS.map((tab, index) => {
                 const isFocused = state.index === index;
                 const onPress = () => {

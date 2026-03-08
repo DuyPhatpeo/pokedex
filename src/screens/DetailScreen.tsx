@@ -173,7 +173,7 @@ export const DetailScreen = ({ route, navigation }: Props) => {
                     </View>
 
                     {/* Pokemon Avatar Container */}
-                    <View className="items-center justify-center h-[170px] z-[10] -mb-[85px]">
+                    <View className="items-center justify-center h-[200px] z-[10] -mb-[100px] mt-8">
                         {imageUrl ? (
                             <Animated.View style={imageStyle}>
                                 <Image
@@ -190,7 +190,7 @@ export const DetailScreen = ({ route, navigation }: Props) => {
 
                 {/* BODY SECTION */}
                 <Animated.View className="bg-white dark:bg-black rounded-t-[50px] px-[25px] pb-[60px] mt-0 z-[1] flex-1 min-h-[60%]" style={bodyStyle}>
-                    <View className="h-[90px]" />
+                    <View className="h-[130px]" />
 
                     {/* Description */}
                     {detail.description ? (

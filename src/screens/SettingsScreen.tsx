@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Alert, Modal, Pressable, Switch } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Alert, Modal, Pressable, Switch, Linking } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useColorScheme } from 'nativewind';
@@ -28,7 +28,7 @@ const ThemeSwitch = ({ isDark }: { isDark: boolean }) => {
 
 export const SettingsScreen = () => {
     const { favorites, clearFavorites } = useFavoritesStore();
-    const { language, setLanguage } = useSettingsStore();
+    const { language, setLanguage, unitSystem, setUnitSystem } = useSettingsStore();
     const { colorScheme, toggleColorScheme } = useColorScheme();
     const t = useTranslation();
     const insets = useSafeAreaInsets();
@@ -146,6 +146,26 @@ export const SettingsScreen = () => {
                             <ThemeSwitch isDark={colorScheme === 'dark'} />
                         </View>
                     </TouchableOpacity>
+
+                    <TouchableOpacity
+                        className="flex-row items-center justify-between py-2 mt-4"
+                        onPress={() => setUnitSystem(unitSystem === 'metric' ? 'imperial' : 'metric')}
+                        activeOpacity={0.7}
+                    >
+                        <View className="flex-row items-center">
+                            <Ionicons
+                                name="options-outline"
+                                size={24}
+                                color={colorScheme === 'dark' ? '#9ca3af' : '#555'}
+                            />
+                            <Text className="text-base text-[#333] dark:text-gray-200 font-semibold ml-3">{t.unitSystem}</Text>
+                        </View>
+                        <View className="bg-white dark:bg-[#333] px-3 py-1 rounded-full border border-gray-100 dark:border-[#444]">
+                            <Text className="text-sm font-bold text-[#e3350d] dark:text-red-400">
+                                {unitSystem === 'metric' ? t.themeLight.split(' ')[0] === 'Light' ? 'Metric' : 'Hệ Mét' : t.themeLight.split(' ')[0] === 'Light' ? 'Imperial' : 'Hệ Anh'}
+                            </Text>
+                        </View>
+                    </TouchableOpacity>
                 </View>
 
                 {/* DATA MANAGEMENT SECTION */}
@@ -166,6 +186,36 @@ export const SettingsScreen = () => {
                         <Text className="text-xs text-gray-400 font-medium tracking-wide">
                             {favorites.length} {t.items}
                         </Text>
+                    </TouchableOpacity>
+                </View>
+
+                {/* DEVELOPER SECTION */}
+                <Text className="text-sm font-bold text-gray-400 uppercase tracking-widest mt-2 mb-2 ml-1">
+                    {t.developerSection}
+                </Text>
+
+                <View className="bg-[#f7f7f7] dark:bg-[#1A1A1A] rounded-2xl p-4 mb-6">
+                    <View className="flex-row items-center justify-between py-2 border-b border-gray-100 dark:border-[#333] mb-2">
+                        <View className="flex-row items-center">
+                            <Ionicons name="person-outline" size={24} color={colorScheme === 'dark' ? '#9ca3af' : '#555'} />
+                            <Text className="text-base text-[#333] dark:text-gray-200 font-semibold ml-3">{t.developerSection}</Text>
+                        </View>
+                        <Text className="text-sm text-gray-400 font-medium">{t.devName}</Text>
+                    </View>
+
+                    <TouchableOpacity
+                        className="flex-row items-center justify-between py-2"
+                        onPress={() => Linking.openURL('https://github.com/DuyPhatpeo')}
+                        activeOpacity={0.7}
+                    >
+                        <View className="flex-row items-center">
+                            <Ionicons name="logo-github" size={24} color={colorScheme === 'dark' ? '#9ca3af' : '#555'} />
+                            <Text className="text-base text-[#333] dark:text-gray-200 font-semibold ml-3">{t.github}</Text>
+                        </View>
+                        <View className="flex-row items-center gap-1">
+                            <Text className="text-sm text-blue-500 font-medium">@DuyPhatpeo</Text>
+                            <Ionicons name="open-outline" size={14} color="#3b82f6" />
+                        </View>
                     </TouchableOpacity>
                 </View>
 

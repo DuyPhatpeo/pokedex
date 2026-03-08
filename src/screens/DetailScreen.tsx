@@ -12,6 +12,7 @@ import { TYPE_ICONS, TYPE_OUTLINE_ICONS } from '../utils/typeIcons';
 import { getColorsByType, hexToRgba } from '../utils/colors';
 import { SkeletonDetailScreen } from '../components/Skeleton';
 import { useTranslation } from '../i18n/translations';
+import { useSettingsStore } from '../store/useSettingsStore';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Detail'>;
 
@@ -24,6 +25,27 @@ export const DetailScreen = ({ route, navigation }: Props) => {
     const { favorites, toggleFavorite } = useFavoritesStore();
     const isFavorite = favorites.includes(name);
     const t = useTranslation();
+    const { unitSystem } = useSettingsStore();
+
+    const formatHeight = (dm: number) => {
+        if (unitSystem === 'metric') {
+            return `${(dm / 10).toFixed(1)} m`;
+        }
+        const totalInches = dm * 3.93701;
+        const feet = Math.floor(totalInches / 12);
+        const inches = Math.round(totalInches % 12);
+        // Handle 12 inches case
+        if (inches === 12) return `${feet + 1}' 00"`;
+        return `${feet}' ${inches.toString().padStart(2, '0')}"`;
+    };
+
+    const formatWeight = (hg: number) => {
+        if (unitSystem === 'metric') {
+            return `${(hg / 10).toFixed(1)} kg`;
+        }
+        const lbs = (hg * 0.220462).toFixed(1);
+        return `${lbs} lbs`;
+    };
 
     const [isShiny, setIsShiny] = useState(!!initialIsShiny);
 
@@ -205,7 +227,7 @@ export const DetailScreen = ({ route, navigation }: Props) => {
                                 <Text className="text-[13px] text-[#999] dark:text-gray-400 font-bold uppercase">{t.weight}</Text>
                             </View>
                             <View className="items-center">
-                                <Text className="text-lg font-bold text-[#111] dark:text-white capitalize">{(detail.weight || 0) / 10} kg</Text>
+                                <Text className="text-lg font-bold text-[#111] dark:text-white capitalize">{formatWeight(detail.weight || 0)}</Text>
                             </View>
                         </View>
 
@@ -215,7 +237,7 @@ export const DetailScreen = ({ route, navigation }: Props) => {
                                 <Text className="text-[13px] text-[#999] dark:text-gray-400 font-bold uppercase">{t.height}</Text>
                             </View>
                             <View className="items-center">
-                                <Text className="text-lg font-bold text-[#111] dark:text-white capitalize">{(detail.height || 0) / 10} m</Text>
+                                <Text className="text-lg font-bold text-[#111] dark:text-white capitalize">{formatHeight(detail.height || 0)}</Text>
                             </View>
                         </View>
 

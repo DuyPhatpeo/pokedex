@@ -8,6 +8,7 @@ import { usePokemonStore } from '../store/usePokemonStore';
 import { PokemonCard } from '../components/PokemonCard';
 import { PokemonListItem } from '../types/pokemon';
 import { getColorsByType, hexToRgba } from '../utils/colors';
+import { TYPE_ICONS } from '../utils/typeIcons';
 import { CompositeScreenProps } from '@react-navigation/native';
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -136,6 +137,33 @@ export const HomeScreen = ({ navigation }: Props) => {
                         <MaterialCommunityIcons name="sort-variant" size={24} color={isDark ? '#fff' : '#303943'} />
                     </TouchableOpacity>
                 </View>
+
+                {/* Categories / Types List */}
+                <FlatList
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    data={Object.keys(TYPE_ICONS).filter(t => t !== 'unknown' && t !== 'shadow')}
+                    keyExtractor={item => item}
+                    contentContainerStyle={{ gap: 10, paddingRight: 20 }}
+                    renderItem={({ item: type }) => {
+                        const typeColor = getColorsByType(type);
+                        return (
+                            <TouchableOpacity
+                                onPress={() => navigation.navigate('TypeResults', { type })}
+                                className="px-3 py-2 rounded-2xl flex-row items-center gap-2 border"
+                                style={{
+                                    backgroundColor: isDark ? hexToRgba(typeColor, 0.2) : hexToRgba(typeColor, 0.1),
+                                    borderColor: isDark ? hexToRgba(typeColor, 0.4) : hexToRgba(typeColor, 0.2)
+                                }}
+                            >
+                                <View className="w-6 h-6 rounded-full bg-white justify-center items-center">
+                                    <Image source={TYPE_ICONS[type]} style={{ width: 14, height: 14 }} contentFit="contain" />
+                                </View>
+                                <Text className="text-sm font-bold capitalize" style={{ color: isDark ? '#fff' : typeColor }}>{type}</Text>
+                            </TouchableOpacity>
+                        );
+                    }}
+                />
 
                 {/* Active Sort Tag */}
                 {sortOption !== 'id-asc' && (

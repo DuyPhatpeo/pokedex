@@ -211,6 +211,61 @@ export const DetailScreen = ({ route, navigation }: Props) => {
                     {/* Gender section */}
                     {renderGender()}
 
+                    {/* Base Stats */}
+                    <Text className="text-xl font-black text-[#111] dark:text-white mb-[20px]">{t.stats}</Text>
+                    <View className="mb-9">
+                        {(() => {
+                            const statMapping = [
+                                { key: 'hp', label: t.hp, color: '#ff0000' },
+                                { key: 'attack', label: t.attack, color: '#f08030' },
+                                { key: 'defense', label: t.defense, color: '#f8d030' },
+                                { key: 'special-attack', label: t.spAtk, color: '#6890f0' },
+                                { key: 'special-defense', label: t.spDef, color: '#78c850' },
+                                { key: 'speed', label: t.speed, color: '#f85888' },
+                            ];
+
+                            const total = detail.stats.reduce((acc, s) => acc + s.base_stat, 0);
+
+                            return (
+                                <>
+                                    {statMapping.map((s) => {
+                                        const statValue = detail.stats.find(os => os.stat.name === s.key)?.base_stat || 0;
+                                        const percentage = Math.min(100, (statValue / 255) * 100);
+
+                                        // Màu sắc động cho thanh progress
+                                        const getBarColor = (val: number) => {
+                                            if (val < 50) return '#ef4444'; // Red-500
+                                            if (val < 90) return '#f59e0b'; // Amber-500
+                                            if (val < 120) return '#22c55e'; // Green-500
+                                            return '#3b82f6'; // Blue-500
+                                        };
+
+                                        return (
+                                            <View key={s.key} className="flex-row items-center mb-3">
+                                                <Text className="w-[100px] text-[14px] text-[#666] dark:text-gray-400 font-bold">{s.label}</Text>
+                                                <Text className="w-[35px] text-[14px] text-[#333] dark:text-gray-200 font-black text-right mr-4">{statValue}</Text>
+                                                <View className="flex-1 h-1.5 bg-gray-100 dark:bg-[#222] rounded-full overflow-hidden">
+                                                    <View
+                                                        className="h-full rounded-full"
+                                                        style={{
+                                                            width: `${percentage}%`,
+                                                            backgroundColor: getBarColor(statValue)
+                                                        }}
+                                                    />
+                                                </View>
+                                            </View>
+                                        );
+                                    })}
+                                    <View className="flex-row items-center mt-2 pt-2 border-t border-gray-100 dark:border-[#222]">
+                                        <Text className="w-[100px] text-[14px] text-[#111] dark:text-white font-black">{t.total}</Text>
+                                        <Text className="w-[35px] text-[14px] text-[#111] dark:text-white font-black text-right mr-4">{total}</Text>
+                                        <View className="flex-1 h-3" />
+                                    </View>
+                                </>
+                            );
+                        })()}
+                    </View>
+
                     {/* Weaknesses */}
                     {detail.weaknesses && detail.weaknesses.length > 0 && (
                         <>

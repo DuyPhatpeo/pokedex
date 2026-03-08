@@ -35,6 +35,13 @@ export const TRANSLATIONS: Record<LanguageCode, any> = {
         abilities: 'ABILITIES',
         gender: 'GENDER',
         weakness: 'WEAKNESSES',
+        hp: 'HP',
+        attack: 'Attack',
+        defense: 'Defense',
+        spAtk: 'Sp. Atk',
+        spDef: 'Sp. Def',
+        speed: 'Speed',
+        total: 'Total',
         noEvolutions: 'This Pokémon does not evolve.',
 
         // Favorites Screen
@@ -87,6 +94,13 @@ export const TRANSLATIONS: Record<LanguageCode, any> = {
         abilities: 'KỸ NĂNG',
         gender: 'GIỚI TÍNH',
         weakness: 'ĐIỂM YẾU',
+        hp: 'HP',
+        attack: 'Tấn công',
+        defense: 'Phòng thủ',
+        spAtk: 'Tấn công ĐB',
+        spDef: 'Phòng thủ ĐB',
+        speed: 'Tốc độ',
+        total: 'Tổng số',
         noEvolutions: 'Pokémon này không có dạng tiến hoá.',
 
         favoritesTitle: 'Yêu Thích',

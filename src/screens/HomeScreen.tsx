@@ -26,7 +26,7 @@ export const HomeScreen = ({ navigation }: Props) => {
     const isDark = colorScheme === 'dark';
 
     const {
-        pokemonList, isLoading, isLoadingMore, loadPokemonList,
+        homePokemonList, isLoading, isLoadingMore, loadPokemonList,
         sortOption, setSortOption
     } = usePokemonStore();
 
@@ -66,7 +66,7 @@ export const HomeScreen = ({ navigation }: Props) => {
         );
     };
 
-    if (isLoading && pokemonList.length === 0) {
+    if (isLoading && homePokemonList.length === 0) {
         return (
             <View className="flex-1 justify-center items-center bg-white dark:bg-black">
                 <ActivityIndicator size="large" color="#e3350d" />
@@ -154,7 +154,7 @@ export const HomeScreen = ({ navigation }: Props) => {
             {/* ===== POKEMON LIST ===== */}
             <FlatList
                 ref={flatListRef}
-                data={pokemonList}
+                data={homePokemonList}
                 renderItem={renderItem}
                 keyExtractor={(item) => item.name}
                 contentContainerStyle={{ paddingHorizontal: 10, paddingBottom: 20, paddingTop: 10 }}

@@ -8,6 +8,7 @@ import { usePokemonStore } from '../store/usePokemonStore';
 import { PokemonCard } from '../components/PokemonCard';
 import { PokemonListItem } from '../types/pokemon';
 import { TYPE_ICONS } from '../utils/typeIcons';
+import { SkeletonCard } from '../components/Skeleton';
 import { getColorsByType, hexToRgba } from '../utils/colors';
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { CompositeScreenProps } from '@react-navigation/native';
@@ -36,7 +37,7 @@ export const SearchScreen = ({ navigation }: Props) => {
     const isDark = colorScheme === 'dark';
 
     const {
-        pokemonList, isLoading, loadPokemonList,
+        searchResults, isLoading, loadPokemonList,
         searchQuery, setSearchQuery,
         activeTypeFilter, toggleTypeFilter, clearTypeFilter
     } = usePokemonStore();
@@ -45,9 +46,7 @@ export const SearchScreen = ({ navigation }: Props) => {
     const [localSearch, setLocalSearch] = useState(searchQuery);
 
     useEffect(() => {
-        if (pokemonList.length === 0) {
-            loadPokemonList(true);
-        }
+        // We can still pre-fetch for common searches if needed, or just leave it
     }, []);
 
     // Debounce search
@@ -182,7 +181,7 @@ export const SearchScreen = ({ navigation }: Props) => {
                     <TextInput
                         ref={inputRef}
                         className="flex-1 text-base font-medium text-[#303943] dark:text-gray-100"
-                        style={Platform.OS === 'web' && { outlineStyle: 'none' } as any}
+                        style={(Platform.OS === 'web' ? { outlineStyle: 'none' } : undefined) as any}
                         placeholder={t.searchPlaceholder}
                         placeholderTextColor={isDark ? '#6b7280' : '#b0b0b0'}
                         value={localSearch}
@@ -197,23 +196,23 @@ export const SearchScreen = ({ navigation }: Props) => {
                     )}
                 </View>
 
-                {/* REFINEMENT TYPES (Visible only when searching/filtering) */}
-                {(searchQuery || activeTypeFilter.length > 0) && (
-                    <FlatList
-                        horizontal
-                        data={['all', ...POKEMON_TYPES]}
-                        keyExtractor={item => item}
-                        showsHorizontalScrollIndicator={false}
-                        className="mt-3"
-                        contentContainerStyle={{ gap: 8 }}
-                        renderItem={({ item }) => {
+                {/* REFINEMENT TYPES (Now with Icons and Wrapped) */}
+                {(localSearch || activeTypeFilter.length > 0) && (
+                    <View className="flex-row flex-wrap gap-2 mt-3">
+                        {['all', ...POKEMON_TYPES].map((item) => {
                             if (item === 'all') {
                                 const isSelected = activeTypeFilter.length === 0;
                                 return (
                                     <TouchableOpacity
-                                        className={`px-3 py-1.5 rounded-xl border ${isSelected ? 'bg-[#303943] border-[#303943] dark:bg-white dark:border-white' : 'bg-transparent border-gray-200 dark:border-gray-800'}`}
+                                        key="all"
+                                        className={`px-3 py-1.5 rounded-xl border flex-row items-center gap-1.5 ${isSelected ? 'bg-[#303943] border-[#303943] dark:bg-white dark:border-white' : 'bg-transparent border-gray-200 dark:border-gray-800'}`}
                                         onPress={clearTypeFilter}
                                     >
+                                        <MaterialCommunityIcons
+                                            name="apps"
+                                            size={14}
+                                            color={isSelected ? '#fff' : (isDark ? '#9ca3af' : '#6b7280')}
+                                        />
                                         <Text className={`text-xs font-bold capitalize ${isSelected ? 'text-white dark:text-black' : 'text-gray-500'}`}>
                                             All
                                         </Text>
@@ -224,13 +223,23 @@ export const SearchScreen = ({ navigation }: Props) => {
                             const typeColor = getColorsByType(item);
                             return (
                                 <TouchableOpacity
-                                    className="px-3 py-1.5 rounded-xl border"
+                                    key={item}
+                                    className="px-2.5 py-1.5 rounded-xl border flex-row items-center gap-1.5"
                                     style={{
                                         backgroundColor: isSelected ? typeColor : 'transparent',
                                         borderColor: isSelected ? typeColor : (isDark ? hexToRgba(typeColor, 0.4) : hexToRgba(typeColor, 0.2))
                                     }}
                                     onPress={() => toggleTypeFilter(item)}
                                 >
+                                    {TYPE_ICONS[item] && (
+                                        <View className={`w-5 h-5 rounded-full justify-center items-center ${isSelected ? 'bg-white/25' : 'bg-transparent'}`}>
+                                            <Image
+                                                source={TYPE_ICONS[item]}
+                                                style={{ width: 12, height: 12, tintColor: isSelected ? '#fff' : typeColor }}
+                                                contentFit="contain"
+                                            />
+                                        </View>
+                                    )}
                                     <Text
                                         className="text-xs font-bold capitalize"
                                         style={{ color: isSelected ? '#fff' : (isDark ? '#fff' : typeColor) }}
@@ -239,35 +248,34 @@ export const SearchScreen = ({ navigation }: Props) => {
                                     </Text>
                                 </TouchableOpacity>
                             );
-                        }}
-                    />
+                        })}
+                    </View>
                 )}
             </View>
 
             {/* CONTENT */}
-            {!searchQuery && activeTypeFilter.length === 0 ? (
+            {!localSearch && activeTypeFilter.length === 0 ? (
                 renderDiscoveryView()
             ) : (
                 <View className="flex-1">
                     {isLoading ? (
-                        <View className="flex-1 justify-center items-center">
-                            <ActivityIndicator size="large" color="#e3350d" />
+                        <View className="flex-1 pt-2">
+                            {[1, 2, 3, 4, 5].map(i => <SkeletonCard key={i} />)}
                         </View>
-                    ) : pokemonList.length === 0 ? (
+                    ) : searchResults.length === 0 ? (
                         <View className="flex-1 justify-center items-center px-10">
                             <Ionicons name="search-outline" size={80} color={isDark ? '#333' : '#f0f0f0'} />
                             <Text className="text-lg font-bold text-gray-400 text-center mt-4">
-                                No Pokémon found for "{searchQuery}"
+                                No Pokémon found for "{localSearch}"
                             </Text>
                         </View>
                     ) : (
                         <FlatList
-                            data={pokemonList}
+                            data={searchResults}
                             renderItem={renderItem}
                             keyExtractor={(item) => item.name}
-                            contentContainerStyle={{ paddingHorizontal: 10, paddingBottom: 20 }}
+                            contentContainerStyle={{ paddingBottom: 20 }}
                             showsVerticalScrollIndicator={false}
-                            numColumns={2}
                         />
                     )}
                 </View>

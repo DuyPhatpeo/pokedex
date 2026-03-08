@@ -36,10 +36,15 @@ export const TypeResultsScreen = ({ route, navigation }: Props) => {
             setIsLoading(true);
             try {
                 const data = await fetchType(currentType);
-                const list = data.pokemon.map((p: any) => p.pokemon);
-                setPokemonList(list);
+                if (data && data.pokemon) {
+                    const list = data.pokemon.map((p: any) => p.pokemon);
+                    setPokemonList(list);
+                } else {
+                    setPokemonList([]);
+                }
             } catch (error) {
                 console.error('Error fetching type results:', error);
+                setPokemonList([]);
             } finally {
                 // Thêm chút delay để skeleton trông mượt hơn
                 setTimeout(() => setIsLoading(false), 300);
@@ -78,7 +83,7 @@ export const TypeResultsScreen = ({ route, navigation }: Props) => {
                 <View className="flex-1">
                     <Text className="text-[34px] font-black text-white capitalize">{currentType}</Text>
                     <Text className="text-white/80 font-bold text-lg mt-1">
-                        {pokemonList.length > 0 ? `${pokemonList.length} species found` : 'Searching...'}
+                        {isLoading ? 'Searching...' : `${pokemonList.length} species found`}
                     </Text>
                 </View>
             </View>

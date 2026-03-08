@@ -4,11 +4,12 @@ import { PokemonListItem, PokemonDetail } from '../types/pokemon';
 
 interface PokemonState {
     allPokemon: PokemonListItem[];
-    pokemonList: PokemonListItem[];
+    homePokemonList: PokemonListItem[]; // For paginated home screen
+    searchResults: PokemonListItem[];   // For filtered search results
     pokemonDetails: Record<string, PokemonDetail>;
-    typeCache: Record<string, PokemonListItem[]>; // cache for type filter results
+    typeCache: Record<string, PokemonListItem[]>;
     searchQuery: string;
-    activeTypeFilter: string[]; // supports multi-select
+    activeTypeFilter: string[];
     sortOption: string;
     isLoading: boolean;
     isLoadingMore: boolean;
@@ -28,7 +29,8 @@ interface PokemonState {
 
 export const usePokemonStore = create<PokemonState>((set, get) => ({
     allPokemon: [],
-    pokemonList: [],
+    homePokemonList: [],
+    searchResults: [],
     pokemonDetails: {},
     typeCache: {},
     searchQuery: '',
@@ -72,10 +74,10 @@ export const usePokemonStore = create<PokemonState>((set, get) => ({
     applyFiltersAndSort: async () => {
         const { searchQuery, activeTypeFilter, sortOption, allPokemon, typeCache } = get();
         const hasTypeFilter = activeTypeFilter.length > 0;
+        const hasSearch = searchQuery.trim().length > 0;
 
-        // Return to default pagination if no filters
-        if (searchQuery.trim().length === 0 && !hasTypeFilter && sortOption === 'id-asc') {
-            get().loadPokemonList(true);
+        if (!hasSearch && !hasTypeFilter) {
+            set({ searchResults: [] });
             return;
         }
 
@@ -84,7 +86,6 @@ export const usePokemonStore = create<PokemonState>((set, get) => ({
             let baseList: PokemonListItem[] = [];
 
             if (hasTypeFilter) {
-                // Fetch each type, use cache if available
                 const listsByType = await Promise.all(
                     activeTypeFilter.map(async (type) => {
                         if (typeCache[type]) return typeCache[type];
@@ -98,7 +99,6 @@ export const usePokemonStore = create<PokemonState>((set, get) => ({
                 if (listsByType.length === 1) {
                     baseList = listsByType[0];
                 } else {
-                    // Intersection: keep only Pokemon that appear in ALL selected types
                     const nameSets = listsByType.map(l => new Set(l.map(p => p.name)));
                     baseList = listsByType[0].filter(p => nameSets.every(s => s.has(p.name)));
                 }
@@ -113,7 +113,7 @@ export const usePokemonStore = create<PokemonState>((set, get) => ({
             }
 
             let resultList = baseList;
-            if (searchQuery.trim().length > 0) {
+            if (hasSearch) {
                 const q = searchQuery.toLowerCase();
                 resultList = resultList.filter(p => p.name.toLowerCase().includes(q));
             }
@@ -131,17 +131,15 @@ export const usePokemonStore = create<PokemonState>((set, get) => ({
                 return 0;
             });
 
-            set({ pokemonList: resultList, hasMore: false, isLoading: false, offset: 0 });
+            set({ searchResults: resultList, isLoading: false });
         } catch (err) {
             set({ isLoading: false });
         }
     },
 
     loadPokemonList: async (refresh = false) => {
-        const { offset, isLoading, isLoadingMore, hasMore, searchQuery, activeTypeFilter, sortOption } = get();
+        const { offset, isLoading, isLoadingMore, hasMore } = get();
 
-        // Cannot load more while any filter/sort is active
-        if (searchQuery.trim().length > 0 || activeTypeFilter.length > 0 || sortOption !== 'id-asc') return;
         if (isLoading || isLoadingMore || (!hasMore && !refresh)) return;
 
         if (refresh) {
@@ -155,7 +153,7 @@ export const usePokemonStore = create<PokemonState>((set, get) => ({
             const response = await fetchPokemonList(20, currentOffset);
 
             set((state) => ({
-                pokemonList: refresh ? response.results : [...state.pokemonList, ...response.results],
+                homePokemonList: refresh ? response.results : [...state.homePokemonList, ...response.results],
                 offset: currentOffset + 20,
                 hasMore: response.next !== null,
                 isLoading: false,
@@ -175,10 +173,7 @@ export const usePokemonStore = create<PokemonState>((set, get) => ({
         if (pokemonDetails[name]) return;
 
         try {
-            // Đầu tiên phải lấy detail chính thức trước vì tên pokemon có thể là biến thể
             const detail = await fetchPokemonDetail(name);
-
-            // Sau đó fetch species bằng detail.id vì ID Species liên thông với ID Pokemon gốc
             const species = await fetchPokemonSpecies(detail.id).catch(() => null);
 
             let description = '';
@@ -200,15 +195,11 @@ export const usePokemonStore = create<PokemonState>((set, get) => ({
                             const id = urlParts[urlParts.length - 1];
                             const imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`;
 
-                            // Fetch type for correct bgColor when navigating
                             let types: string[] = [];
                             try {
-                                // Use ID instead of name to avoid 404 for species with multiple forms (like Wormadam)
                                 const evoDetail = await fetchPokemonDetail(id);
                                 types = evoDetail.types.map((t: any) => t.type.name);
-                            } catch (e) {
-                                console.error(`Error fetching types for evolution ${name} (ID: ${id}):`, e);
-                            }
+                            } catch (e) { }
 
                             evolutions.push({ name, level, imageUrl, types });
                             for (const child of node.evolves_to) {
@@ -220,7 +211,6 @@ export const usePokemonStore = create<PokemonState>((set, get) => ({
                 }
             }
 
-            // Fetch weaknesses
             let weaknesses: string[] = [];
             if (detail.types && detail.types.length > 0) {
                 try {
@@ -232,7 +222,6 @@ export const usePokemonStore = create<PokemonState>((set, get) => ({
                         td.damage_relations.double_damage_from.forEach((w: any) => weakSet.add(w.name));
                     });
 
-                    // Simple weaknesses without resistance calculations for UI layout
                     weaknesses = Array.from(weakSet);
                 } catch (e) { }
             }

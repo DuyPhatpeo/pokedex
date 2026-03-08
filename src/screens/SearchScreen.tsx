@@ -144,7 +144,7 @@ export const SearchScreen = ({ navigation }: Props) => {
                                     borderColor: isDark ? hexToRgba(typeColor, 0.3) : hexToRgba(typeColor, 0.2)
                                 }}
                                 activeOpacity={0.8}
-                                onPress={() => toggleTypeFilter(type)}
+                                onPress={() => navigation.navigate('TypeResults', { type })}
                             >
                                 <View className="w-8 h-8 rounded-full bg-white/90 justify-center items-center mr-2.5">
                                     <Image source={iconSource} style={{ width: 16, height: 16 }} contentFit="contain" />
@@ -192,10 +192,56 @@ export const SearchScreen = ({ navigation }: Props) => {
                     />
                     {localSearch.length > 0 && (
                         <TouchableOpacity onPress={handleClearSearch} className="p-1">
-                            <Ionicons name="close-circle" size={22} color={isDark ? '#4b5563' : '#d1d1d1'} />
+                            <Ionicons name="close-circle" size={22} color={isDark ? '#4b5563' : '#d1d5db'} />
                         </TouchableOpacity>
                     )}
                 </View>
+
+                {/* REFINEMENT TYPES (Visible only when searching/filtering) */}
+                {(searchQuery || activeTypeFilter.length > 0) && (
+                    <FlatList
+                        horizontal
+                        data={['all', ...POKEMON_TYPES]}
+                        keyExtractor={item => item}
+                        showsHorizontalScrollIndicator={false}
+                        className="mt-3"
+                        contentContainerStyle={{ gap: 8 }}
+                        renderItem={({ item }) => {
+                            if (item === 'all') {
+                                const isSelected = activeTypeFilter.length === 0;
+                                return (
+                                    <TouchableOpacity
+                                        className={`px-3 py-1.5 rounded-xl border ${isSelected ? 'bg-[#303943] border-[#303943] dark:bg-white dark:border-white' : 'bg-transparent border-gray-200 dark:border-gray-800'}`}
+                                        onPress={clearTypeFilter}
+                                    >
+                                        <Text className={`text-xs font-bold capitalize ${isSelected ? 'text-white dark:text-black' : 'text-gray-500'}`}>
+                                            All
+                                        </Text>
+                                    </TouchableOpacity>
+                                );
+                            }
+                            const isSelected = activeTypeFilter.includes(item);
+                            const typeColor = getColorsByType(item);
+                            return (
+                                <TouchableOpacity
+                                    className="px-3 py-1.5 rounded-xl border"
+                                    style={{
+                                        backgroundColor: isSelected ? typeColor : 'transparent',
+                                        borderColor: isSelected ? typeColor : (isDark ? hexToRgba(typeColor, 0.4) : hexToRgba(typeColor, 0.2))
+                                    }}
+                                    onPress={() => toggleTypeFilter(item)}
+                                >
+                                    <Text
+                                        className="text-xs font-bold capitalize"
+                                        style={{ color: isSelected ? '#fff' : (isDark ? '#fff' : typeColor) }}
+                                    >
+                                        {item}
+                                    </Text>
+                                </TouchableOpacity>
+                            );
+                        }}
+                    />
+                )}
             </View>
 
             {/* CONTENT */}

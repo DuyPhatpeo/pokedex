@@ -1,5 +1,5 @@
 import React, { useEffect, useCallback, useState, useRef } from 'react';
-import { View, FlatList, ActivityIndicator, Text, TextInput, TouchableOpacity, Platform, Modal, Pressable } from 'react-native';
+import { View, FlatList, ActivityIndicator, Text, TouchableOpacity, Platform, Modal, Pressable } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -7,17 +7,17 @@ import { useColorScheme } from 'nativewind';
 import { usePokemonStore } from '../store/usePokemonStore';
 import { PokemonCard } from '../components/PokemonCard';
 import { PokemonListItem } from '../types/pokemon';
-import { TYPE_ICONS } from '../utils/typeIcons';
 import { getColorsByType, hexToRgba } from '../utils/colors';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../navigation/types';
+import { CompositeScreenProps } from '@react-navigation/native';
+import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { RootStackParamList, MainTabParamList } from '../navigation/types';
 import { useTranslation } from '../i18n/translations';
 
-type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>;
-
-interface Props {
-    navigation: HomeScreenNavigationProp;
-}
+type Props = CompositeScreenProps<
+    BottomTabScreenProps<MainTabParamList, 'Pokedex'>,
+    NativeStackScreenProps<RootStackParamList>
+>;
 
 export const HomeScreen = ({ navigation }: Props) => {
     const insets = useSafeAreaInsets();
@@ -27,7 +27,6 @@ export const HomeScreen = ({ navigation }: Props) => {
 
     const {
         pokemonList, isLoading, isLoadingMore, loadPokemonList,
-        activeTypeFilter, toggleTypeFilter, clearTypeFilter,
         sortOption, setSortOption
     } = usePokemonStore();
 
@@ -44,10 +43,6 @@ export const HomeScreen = ({ navigation }: Props) => {
     useEffect(() => {
         loadPokemonList(true);
     }, []);
-
-    const handleTypePress = (type: string) => {
-        toggleTypeFilter(type);
-    };
 
     const handleSelectSort = (key: string) => {
         setSortOption(key);
@@ -79,7 +74,6 @@ export const HomeScreen = ({ navigation }: Props) => {
         );
     }
 
-    const POKEMON_TYPES = Object.keys(TYPE_ICONS).filter(t => t !== 'unknown' && t !== 'shadow');
     const activeSortLabel = SORT_OPTIONS.find(o => o.key === sortOption)?.label || t.sortIdAsc;
 
     return (
@@ -97,7 +91,6 @@ export const HomeScreen = ({ navigation }: Props) => {
                         style={{ paddingBottom: insets.bottom + 100, marginBottom: -100 }}
                         onPress={() => { }}
                     >
-                        {/* Handle bar */}
                         <View className="w-10 h-1 rounded-full bg-gray-300 dark:bg-[#444] self-center mb-5" />
                         <Text className="text-xl font-black text-[#111] dark:text-white mb-4">{t.sortTitle}</Text>
                         {SORT_OPTIONS.map(option => {
@@ -129,8 +122,8 @@ export const HomeScreen = ({ navigation }: Props) => {
             </Modal>
 
             {/* ===== HEADER ===== */}
-            <View className="px-4 pt-4 pb-2.5">
-                <View className="flex-row items-center justify-between mb-4">
+            <View className="px-5 pt-4 pb-2">
+                <View className="flex-row items-center justify-between mb-5">
                     <Image
                         source={isDark ? require('../../assets/Pokedex-light.png') : require('../../assets/Pokedex.png')}
                         style={{ width: 110, height: 36 }}
@@ -144,77 +137,19 @@ export const HomeScreen = ({ navigation }: Props) => {
                     </TouchableOpacity>
                 </View>
 
-                {/* Active filters/sort row */}
-                {(sortOption !== 'id-asc' || activeTypeFilter.length > 0) && (
-                    <View className="flex-row flex-wrap items-center mt-1 gap-2">
-                        {sortOption !== 'id-asc' && (
-                            <View className="flex-row items-center bg-[#fff0ee] dark:bg-[#e3350d22] rounded-xl px-2.5 py-1 border border-[#e3350d22] dark:border-[#e3350d44]">
-                                <Ionicons name="funnel" size={12} color={isDark ? '#f87171' : '#e3350d'} style={{ marginRight: 4 }} />
-                                <Text className="text-xs font-semibold text-[#e3350d] dark:text-red-400">{activeSortLabel}</Text>
-                                <TouchableOpacity onPress={() => setSortOption('id-asc')} className="ml-1.5">
-                                    <Ionicons name="close-circle" size={14} color={isDark ? '#f87171' : '#e3350d'} />
-                                </TouchableOpacity>
-                            </View>
-                        )}
-                        {activeTypeFilter.map(type => (
-                            <View key={type} className="flex-row items-center rounded-xl px-2.5 py-1 border" style={{ backgroundColor: hexToRgba(getColorsByType(type), 0.15), borderColor: hexToRgba(getColorsByType(type), 0.4) }}>
-                                <Text className="text-xs font-bold capitalize" style={{ color: getColorsByType(type) }}>{type}</Text>
-                                <TouchableOpacity onPress={() => toggleTypeFilter(type)} className="ml-1.5">
-                                    <Ionicons name="close-circle" size={14} color={getColorsByType(type)} />
-                                </TouchableOpacity>
-                            </View>
-                        ))}
+                {/* Active Sort Tag */}
+                {sortOption !== 'id-asc' && (
+                    <View className="flex-row items-center mt-3">
+                        <View className="flex-row items-center bg-[#fff0ee] dark:bg-[#e3350d22] rounded-xl px-2.5 py-1 border border-[#e3350d22] dark:border-[#e3350d44]">
+                            <Ionicons name="funnel" size={12} color={isDark ? '#f87171' : '#e3350d'} style={{ marginRight: 4 }} />
+                            <Text className="text-xs font-semibold text-[#e3350d] dark:text-red-400">{activeSortLabel}</Text>
+                            <TouchableOpacity onPress={() => setSortOption('id-asc')} className="ml-1.5">
+                                <Ionicons name="close-circle" size={14} color={isDark ? '#f87171' : '#e3350d'} />
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 )}
             </View>
-
-            {/* ===== TYPE FILTER SCROLL ===== */}
-            <FlatList
-                horizontal
-                data={['all', ...POKEMON_TYPES]}
-                keyExtractor={item => item}
-                showsHorizontalScrollIndicator={false}
-                className="h-[62px] mb-1.5 flex-none"
-                contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 6, gap: 8 }}
-                renderItem={({ item }) => {
-                    if (item === 'all') {
-                        const isSelected = activeTypeFilter.length === 0;
-                        return (
-                            <TouchableOpacity
-                                className={`px-3 py-2.5 rounded-[20px] justify-center items-center flex-row gap-1.5 ${isSelected ? 'bg-[#303943] dark:bg-[#444]' : 'bg-[#f0f0f0] dark:bg-[#1A1A1A]'}`}
-                                onPress={clearTypeFilter}
-                                activeOpacity={0.7}
-                            >
-                                <Ionicons name="apps" size={14} color={isSelected ? '#fff' : (isDark ? '#d1d5db' : '#555')} />
-                                <Text className={`text-[13px] font-bold capitalize ${isSelected ? 'text-white' : 'text-[#555] dark:text-gray-300'}`}>
-                                    All
-                                </Text>
-                            </TouchableOpacity>
-                        );
-                    }
-                    const isSelected = activeTypeFilter.includes(item);
-                    const typeColor = getColorsByType(item);
-                    const bgColor = isSelected ? typeColor : (isDark ? hexToRgba(typeColor, 0.2) : hexToRgba(typeColor, 0.12));
-                    const iconSource = TYPE_ICONS[item];
-                    return (
-                        <TouchableOpacity
-                            className="px-3 py-2.5 rounded-[20px] justify-center items-center flex-row gap-1.5"
-                            style={{ backgroundColor: bgColor }}
-                            onPress={() => handleTypePress(item)}
-                            activeOpacity={0.7}
-                        >
-                            {iconSource && (
-                                <View className="w-5 h-5 rounded-full bg-white justify-center items-center">
-                                    <Image source={iconSource} style={{ width: 12, height: 12 }} contentFit="contain" />
-                                </View>
-                            )}
-                            <Text className="text-[13px] font-bold capitalize" style={{ color: isSelected ? '#fff' : (isDark ? '#fff' : typeColor) }}>
-                                {item}
-                            </Text>
-                        </TouchableOpacity>
-                    );
-                }}
-            />
 
             {/* ===== POKEMON LIST ===== */}
             <FlatList
@@ -222,7 +157,7 @@ export const HomeScreen = ({ navigation }: Props) => {
                 data={pokemonList}
                 renderItem={renderItem}
                 keyExtractor={(item) => item.name}
-                contentContainerStyle={{ paddingHorizontal: 10, paddingBottom: 20 }}
+                contentContainerStyle={{ paddingHorizontal: 10, paddingBottom: 20, paddingTop: 10 }}
                 onEndReached={() => loadPokemonList()}
                 onEndReachedThreshold={0.5}
                 ListFooterComponent={renderFooter}

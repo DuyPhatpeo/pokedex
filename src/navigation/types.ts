@@ -9,6 +9,7 @@ export type MainTabParamList = {
 
 export type RootStackParamList = {
     Splash: undefined;
-    MainTabs: NavigatorScreenParams<MainTabParamList>;
+    MainTabs: undefined;
     Detail: { name: string; bgColor: string };
+    TypeResults: { type: string };
 };

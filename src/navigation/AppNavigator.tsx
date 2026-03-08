@@ -14,6 +14,7 @@ import { SplashScreen } from '../screens/SplashScreen';
 import { FavoritesScreen } from '../screens/FavoritesScreen';
 import { SettingsScreen } from '../screens/SettingsScreen';
 import { SearchScreen } from '../screens/SearchScreen';
+import { TypeResultsScreen } from '../screens/TypeResultsScreen';
 import { RootStackParamList, MainTabParamList } from './types';
 import { useTranslation } from '../i18n/translations';
 
@@ -189,6 +190,11 @@ export const AppNavigator = () => {
                 <Stack.Screen
                     name="Detail"
                     component={DetailScreen}
+                    options={{ animation: 'slide_from_right' }}
+                />
+                <Stack.Screen
+                    name="TypeResults"
+                    component={TypeResultsScreen}
                     options={{ animation: 'slide_from_right' }}
                 />
             </Stack.Navigator>

@@ -127,7 +127,11 @@ export const DetailScreen = ({ route, navigation }: Props) => {
                         {/* Types Layout */}
                         <View className="flex-row gap-2.5">
                             {detail.types?.map((t) => (
-                                <View key={t.type.name}
+                                <TouchableOpacity
+                                    key={t.type.name}
+                                    onPress={() => {
+                                        navigation.navigate('TypeResults', { type: t.type.name });
+                                    }}
                                     className="rounded-[20px] px-3 py-1.5 flex-row items-center gap-[7px] border-[1.5px] border-white/60"
                                     style={{ backgroundColor: hexToRgba(getColorsByType(t.type.name), 0.75) }}>
                                     {TYPE_ICONS[t.type.name] && (
@@ -136,7 +140,7 @@ export const DetailScreen = ({ route, navigation }: Props) => {
                                         </View>
                                     )}
                                     <Text className="text-white text-[14px] font-bold capitalize">{t.type.name}</Text>
-                                </View>
+                                </TouchableOpacity>
                             ))}
                         </View>
                     </View>
@@ -274,14 +278,21 @@ export const DetailScreen = ({ route, navigation }: Props) => {
                                 {detail.weaknesses.map(w => {
                                     const wColor = getColorsByType(w);
                                     return (
-                                        <View key={w} className="px-2.5 py-1.5 rounded-[20px] flex-row items-center gap-1.5" style={{ backgroundColor: wColor }}>
+                                        <TouchableOpacity
+                                            key={w}
+                                            onPress={() => {
+                                                navigation.navigate('TypeResults', { type: w });
+                                            }}
+                                            className="px-2.5 py-1.5 rounded-[20px] flex-row items-center gap-1.5"
+                                            style={{ backgroundColor: wColor }}
+                                        >
                                             {TYPE_ICONS[w] && (
                                                 <View className="w-[18px] h-[18px] rounded-full bg-white justify-center items-center">
                                                     <Image source={TYPE_ICONS[w]} style={{ width: 10, height: 10 }} contentFit="contain" />
                                                 </View>
                                             )}
                                             <Text className="text-white text-[13px] font-bold capitalize">{w}</Text>
-                                        </View>
+                                        </TouchableOpacity>
                                     );
                                 })}
                             </View>

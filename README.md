@@ -10,7 +10,7 @@ A premium Pokémon encyclopedia built with **React Native** & **Expo**. Experien
 
 <p align="center">
   <img src="./assets/screenshots/home.png" width="30%" alt="Home Screen"/>
-  <img src="./assets/screenshots/detail_1.png" width="30%" alt="Generations Screen"/>
+  <img src="./assets/screenshots/generations.png" width="30%" alt="Generations Screen"/>
   <img src="./assets/screenshots/search.png" width="30%" alt="Search Screen"/>
 </p>
 
@@ -21,7 +21,7 @@ A premium Pokémon encyclopedia built with **React Native** & **Expo**. Experien
 ### 🧬 Pokémon Details
 
 <p align="center">
-  <img src="./assets/screenshots/generations.png" width="30%" alt="About Tab"/>
+  <img src="./assets/screenshots/detail_1.png" width="30%" alt="About Tab"/>
   <img src="./assets/screenshots/detail_2.png" width="30%" alt="Stats Tab"/>
   <img src="./assets/screenshots/detail_3.png" width="30%" alt="Evolution Tab"/>
 </p>
